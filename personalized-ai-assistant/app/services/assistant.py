@@ -153,7 +153,7 @@ Adapt your responses based on the user's preferences and past interactions. Be c
             user_input=user_input,
             assistant_response=response,
             embedding_id=memory_id,
-            metadata=metadata
+            interaction_metadata=metadata
         )
         self.db.add(interaction)
         self.db.commit()

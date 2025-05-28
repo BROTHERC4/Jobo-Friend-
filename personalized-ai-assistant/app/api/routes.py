@@ -66,7 +66,7 @@ async def get_insights(user_id: str, db: Session = Depends(get_db)):
     
     topic_distribution = {}
     for interaction in recent_interactions:
-        topic = interaction.metadata.get('topic', 'general')
+        topic = interaction.interaction_metadata.get('topic', 'general')
         topic_distribution[topic] = topic_distribution.get(topic, 0) + 1
     
     return UserInsights(
