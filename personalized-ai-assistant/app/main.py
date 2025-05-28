@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, HTMLResponse
 from contextlib import asynccontextmanager
 from app.api.routes import router
 from app.models.database import create_tables
@@ -50,18 +50,65 @@ app.add_middleware(
 
 # Mount static files (with error handling)
 try:
-    app.mount("/static", StaticFiles(directory="static"), name="static")
+    if os.path.exists("static"):
+        app.mount("/static", StaticFiles(directory="static"), name="static")
+        logger.info("Static files mounted successfully")
+    else:
+        logger.warning("Static directory not found")
 except Exception as e:
     logger.warning(f"Could not mount static files: {e}")
 
 # Include routes
 app.include_router(router, prefix="/api/v1")
 
+@app.get("/ping")
+async def ping():
+    """Simple ping endpoint to test if app is responding"""
+    return {"status": "pong", "message": "Jobo AI Assistant is responding"}
+
 @app.get("/")
 async def root():
     """Serve the web interface"""
     try:
-        return FileResponse("templates/index.html")
+        if os.path.exists("templates/index.html"):
+            return FileResponse("templates/index.html")
+        else:
+            logger.warning("index.html not found, serving basic response")
+            return HTMLResponse(content="""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Jobo AI Assistant</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5; }
+                    .container { max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+                    h1 { color: #333; text-align: center; }
+                    .status { background: #e8f5e8; padding: 20px; border-radius: 5px; margin: 20px 0; }
+                    .links { text-align: center; margin: 30px 0; }
+                    .links a { display: inline-block; margin: 10px; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; }
+                    .links a:hover { background: #0056b3; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <h1>🤖 Jobo AI Assistant</h1>
+                    <div class="status">
+                        <h3>✅ Service Status: Running</h3>
+                        <p>Your personalized AI assistant is up and running!</p>
+                    </div>
+                    <div class="links">
+                        <a href="/docs">📚 API Documentation</a>
+                        <a href="/api/v1/test">🧪 Test API</a>
+                        <a href="/health">❤️ Health Check</a>
+                        <a href="/debug">🔧 Debug Info</a>
+                    </div>
+                    <p style="text-align: center; color: #666;">
+                        A personalized AI assistant that learns and adapts to each user
+                    </p>
+                </div>
+            </body>
+            </html>
+            """)
     except Exception as e:
         logger.error(f"Could not serve web interface: {e}")
         return {
@@ -95,6 +142,13 @@ async def debug_info():
             "REDIS_URL": "Set" if os.getenv("REDIS_URL") else "Not set", 
             "ANTHROPIC_API_KEY": "Set" if os.getenv("ANTHROPIC_API_KEY") else "Not set",
             "SECRET_KEY": "Set" if os.getenv("SECRET_KEY") else "Not set"
+        },
+        "file_system": {
+            "templates_exists": os.path.exists("templates"),
+            "static_exists": os.path.exists("static"),
+            "index_html_exists": os.path.exists("templates/index.html"),
+            "current_directory": os.getcwd(),
+            "directory_contents": os.listdir(".")
         },
         "endpoints": [
             "/health",
