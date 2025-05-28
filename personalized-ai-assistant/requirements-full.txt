@@ -1,0 +1,11 @@
+# Full requirements with all optional dependencies
+-r requirements.txt
+
+# Vector embeddings and similarity search
+chromadb==0.4.18
+sentence-transformers==2.2.2
+
+# Additional ML dependencies
+torch>=1.9.0
+transformers>=4.20.0
+scikit-learn>=1.0.0 
