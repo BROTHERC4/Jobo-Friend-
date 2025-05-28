@@ -22,7 +22,7 @@
             align-items: center;
         }
 
-        .chat-container {
+        .container {
             width: 90%;
             max-width: 800px;
             height: 90vh;
@@ -35,7 +35,8 @@
             backdrop-filter: blur(10px);
         }
 
-        .chat-header {
+        /* Header styling */
+        .header {
             background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
             color: white;
             padding: 20px;
@@ -43,7 +44,7 @@
             position: relative;
         }
 
-        .chat-header h1 {
+        .header h1 {
             font-family: var(--font-accent, 'Space Grotesk', Arial, sans-serif);
             font-size: 2rem;
             font-weight: 700;
@@ -60,17 +61,28 @@
             font-weight: 700;
         }
 
-        .chat-header p {
+        .header p {
             font-family: var(--font-primary, 'Inter', sans-serif);
             opacity: 0.9;
             font-size: 0.9rem;
             font-weight: 400;
         }
 
-        .status-indicator {
+        .user-info {
             position: absolute;
             top: 20px;
             right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            display: none;
+        }
+
+        .status-indicator {
+            position: absolute;
+            top: 20px;
+            left: 20px;
             width: 12px;
             height: 12px;
             background: #4ade80;
@@ -82,6 +94,119 @@
             0% { opacity: 1; }
             50% { opacity: 0.5; }
             100% { opacity: 1; }
+        }
+
+        /* Authentication forms styling */
+        .auth-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .auth-form {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .auth-form h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #334155;
+            font-family: var(--font-heading, 'Poppins', sans-serif);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #475569;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .auth-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        .auth-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .auth-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .switch-form {
+            text-align: center;
+            color: #64748b;
+        }
+
+        .switch-form a {
+            color: #4facfe;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .switch-form a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        /* Chat interface styling (same as before) */
+        .chat-container {
+            display: none;
+            flex-direction: column;
+            height: 100%;
         }
 
         .chat-messages {
@@ -252,35 +377,36 @@
             }
         }
 
-        .welcome-message {
-            text-align: center;
-            color: #64748b;
-            padding: 40px 20px;
-        }
-
-        .welcome-message h2 {
-            margin-bottom: 10px;
-            color: #334155;
-        }
-
-        .user-id-container {
+        .logout-button {
             position: absolute;
             top: 20px;
-            left: 20px;
+            right: 20px;
             background: rgba(255, 255, 255, 0.2);
-            padding: 5px 10px;
+            border: none;
+            color: white;
+            padding: 8px 12px;
             border-radius: 15px;
+            cursor: pointer;
             font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .logout-button:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
 
         @media (max-width: 768px) {
-            .chat-container {
+            .container {
                 width: 95%;
                 height: 95vh;
                 border-radius: 15px;
             }
 
-            .chat-header h1 {
+            .auth-form {
+                padding: 30px;
+            }
+
+            .header h1 {
                 font-size: 1.5rem;
             }
 
@@ -291,12 +417,15 @@
     </style>
 </head>
 <body>
-    <div class="chat-container">
-        <div class="chat-header">
-            <div class="user-id-container">
-                <i class="fas fa-user"></i> <span id="current-user-id">guest</span>
-            </div>
+    <div class="container">
+        <div class="header">
             <div class="status-indicator"></div>
+            <div class="user-info" id="user-info">
+                <i class="fas fa-user"></i> <span id="current-username">guest</span>
+            </div>
+            <button class="logout-button" id="logout-button" style="display: none;">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
             <h1>
                 <i class="fas fa-robot"></i>
                 <span class="jobo-brand">Jobo</span> AI Assistant
@@ -304,48 +433,348 @@
             <p>Your personalized AI companion that learns and grows with you</p>
         </div>
 
-        <div class="chat-messages" id="chat-messages">
-            <div class="welcome-message">
-                <h2>👋 Welcome to Jobo!</h2>
-                <p>I'm your personalized AI assistant. I learn from our conversations to provide better, more tailored responses over time.</p>
-                <p>Start by saying hello or asking me anything!</p>
+        <!-- Authentication Container -->
+        <div class="auth-container" id="auth-container">
+            <!-- Login Form -->
+            <div class="auth-form" id="login-form">
+                <h2><i class="fas fa-sign-in-alt"></i> Welcome Back</h2>
+                <div id="login-error" class="error-message" style="display: none;"></div>
+                <form id="login-form-element">
+                    <div class="form-group">
+                        <label for="login-username">Username</label>
+                        <input type="text" id="login-username" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" name="password" required>
+                    </div>
+                    <button type="submit" class="auth-button" id="login-button">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                </form>
+                <div class="switch-form">
+                    Don't have an account? <a href="#" id="show-register">Create one here</a>
+                </div>
             </div>
-        </div>
 
-        <div class="typing-indicator" id="typing-indicator">
-            <div class="message-avatar">
-                <i class="fas fa-robot"></i>
-            </div>
-            <div>
-                Jobo is thinking
-                <div class="typing-dots">
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
+            <!-- Register Form -->
+            <div class="auth-form" id="register-form" style="display: none;">
+                <h2><i class="fas fa-user-plus"></i> Join Jobo</h2>
+                <div id="register-error" class="error-message" style="display: none;"></div>
+                <form id="register-form-element">
+                    <div class="form-group">
+                        <label for="register-username">Username</label>
+                        <input type="text" id="register-username" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-email">Email (optional)</label>
+                        <input type="email" id="register-email" name="email">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Password</label>
+                        <input type="password" id="register-password" name="password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-display-name">Display Name (optional)</label>
+                        <input type="text" id="register-display-name" name="display_name">
+                    </div>
+                    <button type="submit" class="auth-button" id="register-button">
+                        <i class="fas fa-user-plus"></i> Create Account
+                    </button>
+                </form>
+                <div class="switch-form">
+                    Already have an account? <a href="#" id="show-login">Login here</a>
                 </div>
             </div>
         </div>
 
-        <div class="chat-input-container">
-            <form class="chat-input-form" id="chat-form">
-                <input 
-                    type="text" 
-                    class="chat-input" 
-                    id="message-input" 
-                    placeholder="Type your message to Jobo..."
-                    autocomplete="off"
-                >
-                <button type="submit" class="send-button" id="send-button">
-                    <i class="fas fa-paper-plane"></i>
-                </button>
-            </form>
+        <!-- Chat Container -->
+        <div class="chat-container" id="chat-container">
+            <div class="chat-messages" id="chat-messages">
+                <div class="welcome-message" id="welcome-message">
+                    <h2>👋 Welcome back to Jobo!</h2>
+                    <p>I'm your personalized AI assistant. I remember our previous conversations and adapt to your communication style.</p>
+                    <p>What would you like to talk about today?</p>
+                </div>
+            </div>
+
+            <div class="typing-indicator" id="typing-indicator">
+                <div class="message-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div>
+                    Jobo is thinking
+                    <div class="typing-dots">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input-container">
+                <form class="chat-input-form" id="chat-form">
+                    <input 
+                        type="text" 
+                        class="chat-input" 
+                        id="message-input" 
+                        placeholder="Type your message to Jobo..."
+                        autocomplete="off"
+                    >
+                    <button type="submit" class="send-button" id="send-button">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 
     <script>
-        class JoboChat {
+        class JoboAuth {
             constructor() {
-                this.userId = this.generateUserId();
+                this.token = localStorage.getItem('jobo-auth-token');
+                this.user = null;
+                
+                // DOM elements
+                this.authContainer = document.getElementById('auth-container');
+                this.chatContainer = document.getElementById('chat-container');
+                this.loginForm = document.getElementById('login-form');
+                this.registerForm = document.getElementById('register-form');
+                this.userInfo = document.getElementById('user-info');
+                this.logoutButton = document.getElementById('logout-button');
+                
+                this.init();
+            }
+            
+            init() {
+                // Check if user is already logged in
+                if (this.token) {
+                    this.verifyToken();
+                } else {
+                    this.showAuth();
+                }
+                
+                // Set up event listeners
+                this.setupEventListeners();
+            }
+            
+            setupEventListeners() {
+                // Form switching
+                document.getElementById('show-register').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.showRegister();
+                });
+                
+                document.getElementById('show-login').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.showLogin();
+                });
+                
+                // Form submissions
+                document.getElementById('login-form-element').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleLogin();
+                });
+                
+                document.getElementById('register-form-element').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleRegister();
+                });
+                
+                // Logout
+                this.logoutButton.addEventListener('click', () => {
+                    this.handleLogout();
+                });
+            }
+            
+            showAuth() {
+                this.authContainer.style.display = 'flex';
+                this.chatContainer.style.display = 'none';
+                this.userInfo.style.display = 'none';
+                this.logoutButton.style.display = 'none';
+            }
+            
+            showChat() {
+                this.authContainer.style.display = 'none';
+                this.chatContainer.style.display = 'flex';
+                this.userInfo.style.display = 'block';
+                this.logoutButton.style.display = 'block';
+                
+                // Initialize chat if not already done
+                if (!this.chatInterface) {
+                    this.chatInterface = new JoboChat(this.token);
+                }
+            }
+            
+            showLogin() {
+                this.loginForm.style.display = 'block';
+                this.registerForm.style.display = 'none';
+                this.clearErrors();
+            }
+            
+            showRegister() {
+                this.loginForm.style.display = 'none';
+                this.registerForm.style.display = 'block';
+                this.clearErrors();
+            }
+            
+            clearErrors() {
+                document.getElementById('login-error').style.display = 'none';
+                document.getElementById('register-error').style.display = 'none';
+            }
+            
+            async verifyToken() {
+                try {
+                    const response = await fetch('/api/v1/auth/me', {
+                        headers: {
+                            'Authorization': `Bearer ${this.token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        this.user = await response.json();
+                        this.updateUserInfo();
+                        this.showChat();
+                    } else {
+                        this.clearAuth();
+                        this.showAuth();
+                    }
+                } catch (error) {
+                    console.error('Token verification failed:', error);
+                    this.clearAuth();
+                    this.showAuth();
+                }
+            }
+            
+            async handleLogin() {
+                const username = document.getElementById('login-username').value;
+                const password = document.getElementById('login-password').value;
+                const loginButton = document.getElementById('login-button');
+                const errorDiv = document.getElementById('login-error');
+                
+                loginButton.disabled = true;
+                loginButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+                
+                try {
+                    const response = await fetch('/api/v1/auth/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ username, password })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        this.token = data.access_token;
+                        this.user = data.user;
+                        localStorage.setItem('jobo-auth-token', this.token);
+                        this.updateUserInfo();
+                        this.showChat();
+                    } else {
+                        errorDiv.textContent = data.detail || 'Login failed';
+                        errorDiv.style.display = 'block';
+                    }
+                } catch (error) {
+                    console.error('Login error:', error);
+                    errorDiv.textContent = 'Connection error. Please try again.';
+                    errorDiv.style.display = 'block';
+                } finally {
+                    loginButton.disabled = false;
+                    loginButton.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+                }
+            }
+            
+            async handleRegister() {
+                const username = document.getElementById('register-username').value;
+                const email = document.getElementById('register-email').value;
+                const password = document.getElementById('register-password').value;
+                const displayName = document.getElementById('register-display-name').value;
+                const registerButton = document.getElementById('register-button');
+                const errorDiv = document.getElementById('register-error');
+                
+                registerButton.disabled = true;
+                registerButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
+                
+                try {
+                    const response = await fetch('/api/v1/auth/register', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ 
+                            username, 
+                            email: email || null, 
+                            password,
+                            display_name: displayName || null
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        this.token = data.access_token;
+                        this.user = data.user;
+                        localStorage.setItem('jobo-auth-token', this.token);
+                        this.updateUserInfo();
+                        this.showChat();
+                    } else {
+                        errorDiv.textContent = data.detail || 'Registration failed';
+                        errorDiv.style.display = 'block';
+                    }
+                } catch (error) {
+                    console.error('Registration error:', error);
+                    errorDiv.textContent = 'Connection error. Please try again.';
+                    errorDiv.style.display = 'block';
+                } finally {
+                    registerButton.disabled = false;
+                    registerButton.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
+                }
+            }
+            
+            async handleLogout() {
+                try {
+                    await fetch('/api/v1/auth/logout', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${this.token}`
+                        }
+                    });
+                } catch (error) {
+                    console.error('Logout error:', error);
+                }
+                
+                this.clearAuth();
+                this.showAuth();
+            }
+            
+            clearAuth() {
+                this.token = null;
+                this.user = null;
+                localStorage.removeItem('jobo-auth-token');
+            }
+            
+            updateUserInfo() {
+                if (this.user) {
+                    document.getElementById('current-username').textContent = this.user.username;
+                    
+                    // Update welcome message
+                    const welcomeMessage = document.getElementById('welcome-message');
+                    if (welcomeMessage) {
+                        welcomeMessage.innerHTML = `
+                            <h2>👋 Welcome back, ${this.user.display_name || this.user.username}!</h2>
+                            <p>I'm your personalized AI assistant. I remember our previous conversations and adapt to your communication style.</p>
+                            <p>What would you like to talk about today?</p>
+                        `;
+                    }
+                }
+            }
+        }
+        
+        class JoboChat {
+            constructor(token) {
+                this.token = token;
                 this.messagesContainer = document.getElementById('chat-messages');
                 this.messageInput = document.getElementById('message-input');
                 this.sendButton = document.getElementById('send-button');
@@ -354,20 +783,8 @@
                 
                 this.init();
             }
-
-            generateUserId() {
-                // Generate a simple user ID or get from localStorage
-                let userId = localStorage.getItem('jobo-user-id');
-                if (!userId) {
-                    userId = 'user_' + Math.random().toString(36).substr(2, 9);
-                    localStorage.setItem('jobo-user-id', userId);
-                }
-                return userId;
-            }
-
+            
             init() {
-                document.getElementById('current-user-id').textContent = this.userId;
-                
                 this.chatForm.addEventListener('submit', (e) => {
                     e.preventDefault();
                     this.sendMessage();
@@ -388,7 +805,7 @@
                     }
                 }, { once: true });
             }
-
+            
             async sendMessage() {
                 const message = this.messageInput.value.trim();
                 if (!message) return;
@@ -403,14 +820,19 @@
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${this.token}`
                         },
                         body: JSON.stringify({
-                            user_id: this.userId,
                             message: message
                         })
                     });
 
                     if (!response.ok) {
+                        if (response.status === 401) {
+                            // Token expired, redirect to login
+                            window.location.reload();
+                            return;
+                        }
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
 
@@ -427,7 +849,7 @@
                     this.setLoading(false);
                 }
             }
-
+            
             addMessage(content, sender) {
                 const messageDiv = document.createElement('div');
                 messageDiv.className = `message ${sender}`;
@@ -452,7 +874,7 @@
                 this.messagesContainer.appendChild(messageDiv);
                 this.scrollToBottom();
             }
-
+            
             setLoading(loading) {
                 this.sendButton.disabled = loading;
                 this.messageInput.disabled = loading;
@@ -464,7 +886,7 @@
                     this.typingIndicator.style.display = 'none';
                 }
             }
-
+            
             scrollToBottom() {
                 setTimeout(() => {
                     this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
@@ -472,9 +894,9 @@
             }
         }
 
-        // Initialize the chat when the page loads
+        // Initialize the application when the page loads
         document.addEventListener('DOMContentLoaded', () => {
-            new JoboChat();
+            new JoboAuth();
         });
     </script>
 </body>
