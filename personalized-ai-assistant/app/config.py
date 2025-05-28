@@ -84,7 +84,20 @@ def get_settings():
 
 # Convenience function for checking if intelligence features are available
 def is_intelligence_enabled():
-    ...
+    """Check if the full intelligence stack is available and enabled"""
+    settings = get_settings()
+    chroma_enabled = getattr(settings, 'chroma_enabled', True)
+    embedding_enabled = getattr(settings, 'embedding_enabled', True)
+    return chroma_enabled and embedding_enabled
 
 def get_intelligence_status():
-    ... 
+    """Get detailed status of intelligence components for debugging"""
+    settings = get_settings()
+    return {
+        "chroma_enabled": getattr(settings, 'chroma_enabled', True),
+        "embedding_enabled": getattr(settings, 'embedding_enabled', True),
+        "embedding_model": getattr(settings, 'embedding_model_name', 'all-MiniLM-L6-v2'),
+        "memory_search_results": getattr(settings, 'max_memory_search_results', 5),
+        "similarity_threshold": getattr(settings, 'memory_similarity_threshold', 0.7),
+        "full_intelligence_available": is_intelligence_enabled()
+    } 
