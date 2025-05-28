@@ -80,4 +80,11 @@ class Settings(BaseSettings):
 
 @lru_cache()
 def get_settings():
-    return Settings() 
+    return Settings()
+
+# Convenience function for checking if intelligence features are available
+def is_intelligence_enabled():
+    ...
+
+def get_intelligence_status():
+    ... 

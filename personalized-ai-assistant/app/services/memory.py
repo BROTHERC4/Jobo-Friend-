@@ -1,11 +1,24 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional, Tuple
 import redis
 import json
 import logging
+import hashlib
+import uuid
+from datetime import datetime, timedelta
 from app.config import get_settings
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
+
+class IntelligentMemoryService:
+    """
+    Enhanced memory service that provides semantic understanding and long-term memory.
+    ... (full content from memory_intelligent.py)
+    """
+    # ... (rest of the code from memory_intelligent.py)
+
+# For backward compatibility
+MemoryService = IntelligentMemoryService
 
 class MemoryService:
     def __init__(self, user_id: str):

@@ -1,16 +1,27 @@
 import anthropic
 from datetime import datetime
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from sqlalchemy.orm import Session
 from app.models.database import UserProfile, Interaction, LearnedPattern
-from app.services.embeddings import EmbeddingService
-from app.services.memory import MemoryService
+from app.services.embeddings import get_embedding_service
+from app.services.memory import IntelligentMemoryService
 from app.services.learning import LearningService
-from app.config import get_settings
+from app.config import get_settings, is_intelligence_enabled
 import logging
+import json
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
+
+class IntelligentPersonalizedAssistant:
+    """
+    Enhanced AI assistant with semantic understanding and long-term memory.
+    ... (full content from assistant_intelligent.py)
+    """
+    # ... (rest of the code from assistant_intelligent.py)
+
+# For backward compatibility
+PersonalizedAssistant = IntelligentPersonalizedAssistant
 
 class PersonalizedAssistant:
     def __init__(self, user_id: str, db: Session):

@@ -1,3 +1,4 @@
+# Base requirements (existing)
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
 anthropic==0.52.1
@@ -7,4 +8,18 @@ redis==5.0.1
 pydantic==2.5.0
 pydantic-settings==2.1.0
 python-multipart==0.0.6
-numpy==1.24.3 
+numpy==1.24.3
+
+# Intelligence Components - These transform Jobo into a truly smart AI
+sentence-transformers==2.2.2
+chromadb==0.4.18
+
+# Supporting dependencies for the intelligence upgrade
+torch>=1.9.0
+transformers>=4.20.0
+scikit-learn>=1.0.0
+
+# Additional utilities for enhanced AI functionality
+tenacity>=8.0.0  # For robust API calls with retries
+nltk>=3.8.0      # For advanced text processing
+pandas>=2.0.0    # For data analysis in learning algorithms 
