@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, Text, Float, DateTime, JSON
+from sqlalchemy import create_engine, Column, Integer, String, Text, Float, DateTime, JSON, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
@@ -24,6 +24,30 @@ except Exception as e:
 
 Base = declarative_base()
 
+# Authentication Tables
+class User(Base):
+    __tablename__ = "users"
+    
+    id = Column(Integer, primary_key=True)
+    username = Column(String, unique=True, index=True, nullable=False)
+    email = Column(String, unique=True, index=True, nullable=True)
+    password_hash = Column(String, nullable=False)
+    user_id = Column(String, unique=True, index=True, nullable=False)  # Links to existing system
+    display_name = Column(String, nullable=True)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class SessionToken(Base):
+    __tablename__ = "session_tokens"
+    
+    id = Column(Integer, primary_key=True)
+    token = Column(String, unique=True, index=True, nullable=False)
+    user_id = Column(String, index=True, nullable=False)  # Links to User.user_id
+    expires_at = Column(DateTime, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+# Existing AI System Tables (preserved exactly as they were)
 class UserProfile(Base):
     __tablename__ = "user_profiles"
     

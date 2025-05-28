@@ -4,6 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, HTMLResponse
 from contextlib import asynccontextmanager
 from app.api.routes import router
+from app.api.auth import router as auth_router
 from app.models.database import create_tables
 from app.config import get_settings
 from app.utils.helpers import setup_logging
@@ -20,7 +21,7 @@ async def lifespan(app: FastAPI):
     # Startup
     logger.info("Starting up Jobo AI Assistant...")
     try:
-        # Create database tables
+        # Create database tables (including new authentication tables)
         create_tables()
         logger.info("Database initialization completed")
     except Exception as e:
@@ -34,8 +35,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Jobo AI Assistant",
-    description="A personalized AI assistant that learns and adapts to each user",
-    version="1.0.0",
+    description="A personalized AI assistant with secure authentication that learns and adapts to each user",
+    version="2.0.0",
     lifespan=lifespan
 )
 
@@ -58,8 +59,9 @@ try:
 except Exception as e:
     logger.warning(f"Could not mount static files: {e}")
 
-# Include routes
-app.include_router(router, prefix="/api/v1")
+# Include routers
+app.include_router(auth_router, prefix="/api/v1/auth", tags=["Authentication"])
+app.include_router(router, prefix="/api/v1", tags=["AI Assistant"])
 
 @app.get("/ping")
 async def ping():
@@ -84,17 +86,34 @@ async def root():
                     .container { max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
                     h1 { color: #333; text-align: center; }
                     .status { background: #e8f5e8; padding: 20px; border-radius: 5px; margin: 20px 0; }
+                    .auth-notice { background: #fff3cd; padding: 20px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #ffc107; }
                     .links { text-align: center; margin: 30px 0; }
                     .links a { display: inline-block; margin: 10px; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; }
                     .links a:hover { background: #0056b3; }
+                    .auth-links a { background: #28a745; }
+                    .auth-links a:hover { background: #1e7e34; }
                 </style>
             </head>
             <body>
                 <div class="container">
-                    <h1>🤖 Jobo AI Assistant</h1>
+                    <h1>🤖 Jobo AI Assistant v2.0</h1>
                     <div class="status">
-                        <h3>✅ Service Status: Running</h3>
-                        <p>Your personalized AI assistant is up and running!</p>
+                        <h3>✅ Service Status: Running with Authentication</h3>
+                        <p>Your personalized AI assistant is up and running with secure user accounts!</p>
+                    </div>
+                    <div class="auth-notice">
+                        <h3>🔐 New in v2.0: User Authentication</h3>
+                        <p>Create an account to enjoy personalized AI conversations with secure data protection.</p>
+                        <ul>
+                            <li>✅ Secure user registration and login</li>
+                            <li>✅ Personal AI learning and memory</li>
+                            <li>✅ Protected conversation history</li>
+                            <li>✅ Backward compatibility with legacy endpoints</li>
+                        </ul>
+                    </div>
+                    <div class="links auth-links">
+                        <a href="/docs#/Authentication/register">🆕 Register Account</a>
+                        <a href="/docs#/Authentication/login">🔑 Login</a>
                     </div>
                     <div class="links">
                         <a href="/docs">📚 API Documentation</a>
@@ -113,7 +132,8 @@ async def root():
         logger.error(f"Could not serve web interface: {e}")
         return {
             "message": "Jobo AI Assistant API",
-            "version": "1.0.0",
+            "version": "2.0.0",
+            "features": ["Authentication", "Personalized AI", "Secure Data"],
             "docs": "/docs",
             "description": "A personalized AI assistant that learns from your interactions",
             "note": "Web interface temporarily unavailable",
@@ -124,9 +144,28 @@ async def root():
 async def api_info():
     return {
         "message": "Jobo AI Assistant API",
-        "version": "1.0.0",
+        "version": "2.0.0",
+        "features": ["Authentication", "Personalized AI", "Secure Data"],
         "docs": "/docs",
-        "description": "A personalized AI assistant that learns from your interactions"
+        "description": "A personalized AI assistant that learns from your interactions",
+        "authentication": {
+            "register": "/api/v1/auth/register",
+            "login": "/api/v1/auth/login",
+            "logout": "/api/v1/auth/logout",
+            "profile": "/api/v1/auth/me"
+        },
+        "endpoints": {
+            "authenticated": {
+                "chat": "/api/v1/chat",
+                "feedback": "/api/v1/feedback", 
+                "insights": "/api/v1/insights"
+            },
+            "legacy": {
+                "chat": "/api/v1/legacy/chat",
+                "feedback": "/api/v1/legacy/feedback",
+                "insights": "/api/v1/legacy/insights/{user_id}"
+            }
+        }
     }
 
 @app.get("/debug")
@@ -135,7 +174,8 @@ async def debug_info():
     return {
         "status": "running",
         "service": "Jobo AI Assistant",
-        "version": "1.0.0",
+        "version": "2.0.0",
+        "features": ["Authentication", "Personalized AI", "Secure Data"],
         "environment": {
             "PORT": os.getenv("PORT", "Not set"),
             "DATABASE_URL": "Set" if os.getenv("DATABASE_URL") else "Not set",
@@ -150,13 +190,25 @@ async def debug_info():
             "current_directory": os.getcwd(),
             "directory_contents": os.listdir(".")
         },
-        "endpoints": [
-            "/health",
-            "/debug", 
-            "/api/v1/test",
-            "/api/v1/chat",
-            "/docs"
-        ]
+        "endpoints": {
+            "core": ["/health", "/debug", "/api/v1/test"],
+            "authentication": [
+                "/api/v1/auth/register",
+                "/api/v1/auth/login", 
+                "/api/v1/auth/logout",
+                "/api/v1/auth/me"
+            ],
+            "ai_assistant": [
+                "/api/v1/chat",
+                "/api/v1/feedback", 
+                "/api/v1/insights"
+            ],
+            "legacy": [
+                "/api/v1/legacy/chat",
+                "/api/v1/legacy/feedback",
+                "/api/v1/legacy/insights/{user_id}"
+            ]
+        }
     }
 
 @app.get("/health")
@@ -178,6 +230,7 @@ async def health_check():
         "status": "healthy",
         "service": "Jobo AI Assistant",
         "database": db_status,
-        "version": "1.0.0",
+        "version": "2.0.0",
+        "features": ["Authentication", "Personalized AI", "Secure Data"],
         "message": "Service is running"
     } 
