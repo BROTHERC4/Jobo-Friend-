@@ -246,6 +246,12 @@ class IntelligentPersonalizedAssistant:
         context and intelligence capabilities available, enabling more sophisticated
         and personalized responses.
         """
+        # Define strings separately to avoid backslash issues in f-strings
+        learning_awareness = "Show awareness of the user's learning journey and interests over time" if self.intelligence_enabled else "Learn and adapt within the current conversation"
+        memory_understanding = "Demonstrate genuine memory and understanding of your relationship with this user" if self.intelligence_enabled else "Be consistent with the patterns you've learned about this user"
+        reference_guidance = "Reference relevant past conversations when they add value" if self.intelligence_enabled else "Build on the immediate conversation context"
+        value_growth = "grows more valuable with every interaction" if self.intelligence_enabled else "provides consistent, helpful assistance"
+        
         base_prompt = f"""You are Jobo, an advanced AI assistant with{'out' if not self.intelligence_enabled else ''} enhanced intelligence capabilities. 
 
 {context}
@@ -259,12 +265,12 @@ class IntelligentPersonalizedAssistant:
 Communication Guidelines:
 - Be conversational, warm, and genuinely helpful
 - Adapt your formality and verbosity to match the user's established preferences
-- {'Reference relevant past conversations when they add value' if self.intelligence_enabled else 'Build on the immediate conversation context'}
-- {'Show awareness of the user\'s learning journey and interests over time' if self.intelligence_enabled else 'Learn and adapt within the current conversation'}
+- {reference_guidance}
+- {learning_awareness}
 - Be encouraging and supportive of the user's growth and curiosity
-- {'Demonstrate genuine memory and understanding of your relationship with this user' if self.intelligence_enabled else 'Be consistent with the patterns you\'ve learned about this user'}
+- {memory_understanding}
 
-Your goal is to be a helpful, intelligent companion that {'grows more valuable with every interaction' if self.intelligence_enabled else 'provides consistent, helpful assistance'}."""
+Your goal is to be a helpful, intelligent companion that {value_growth}."""
 
         return base_prompt
     
