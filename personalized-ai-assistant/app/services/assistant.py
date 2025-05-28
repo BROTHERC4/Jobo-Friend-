@@ -24,7 +24,10 @@ class PersonalizedAssistant:
                 self.client = None
                 self.claude_available = False
             else:
-                self.client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
+                # Use the correct Anthropic client initialization for latest version
+                self.client = anthropic.Anthropic(
+                    api_key=settings.anthropic_api_key
+                )
                 self.claude_available = True
                 logger.info("Claude API initialized successfully")
         except Exception as e:
