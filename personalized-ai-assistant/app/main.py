@@ -8,6 +8,7 @@ from app.models.database import create_tables
 from app.config import get_settings
 from app.utils.helpers import setup_logging
 import logging
+import os
 
 settings = get_settings()
 
@@ -68,7 +69,8 @@ async def root():
             "version": "1.0.0",
             "docs": "/docs",
             "description": "A personalized AI assistant that learns from your interactions",
-            "note": "Web interface temporarily unavailable"
+            "note": "Web interface temporarily unavailable",
+            "status": "running"
         }
 
 @app.get("/api")
@@ -80,14 +82,38 @@ async def api_info():
         "description": "A personalized AI assistant that learns from your interactions"
     }
 
+@app.get("/debug")
+async def debug_info():
+    """Debug endpoint to check environment and status"""
+    return {
+        "status": "running",
+        "service": "Jobo AI Assistant",
+        "version": "1.0.0",
+        "environment": {
+            "PORT": os.getenv("PORT", "Not set"),
+            "DATABASE_URL": "Set" if os.getenv("DATABASE_URL") else "Not set",
+            "REDIS_URL": "Set" if os.getenv("REDIS_URL") else "Not set", 
+            "ANTHROPIC_API_KEY": "Set" if os.getenv("ANTHROPIC_API_KEY") else "Not set",
+            "SECRET_KEY": "Set" if os.getenv("SECRET_KEY") else "Not set"
+        },
+        "endpoints": [
+            "/health",
+            "/debug", 
+            "/api/v1/test",
+            "/api/v1/chat",
+            "/docs"
+        ]
+    }
+
 @app.get("/health")
 async def health_check():
     """Health check endpoint for Railway"""
     try:
-        # Test database connection
+        # Test database connection with proper SQL
         from app.models.database import SessionLocal
+        from sqlalchemy import text
         db = SessionLocal()
-        db.execute("SELECT 1")
+        result = db.execute(text("SELECT 1 as test"))
         db.close()
         db_status = "healthy"
     except Exception as e:
@@ -98,5 +124,6 @@ async def health_check():
         "status": "healthy",
         "service": "Jobo AI Assistant",
         "database": db_status,
-        "version": "1.0.0"
+        "version": "1.0.0",
+        "message": "Service is running"
     } 
