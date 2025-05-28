@@ -11,23 +11,36 @@ class UserRegister(BaseModel):
 
     @validator('username')
     def username_alphanumeric(cls, v):
-        if len(v) < 3:
-            raise ValueError('Username must be at least 3 characters long')
+        if len(v) < 2:
+            raise ValueError('Username must be at least 2 characters long')
         if len(v) > 50:
             raise ValueError('Username must be less than 50 characters')
-        if not v.replace('_', '').replace('-', '').isalnum():
-            raise ValueError('Username must contain only letters, numbers, hyphens, and underscores')
-        return v
+        if not v.replace('_', '').replace('-', '').replace('.', '').isalnum():
+            raise ValueError('Username can only contain letters, numbers, hyphens, underscores, and dots')
+        return v.lower().strip()  # Normalize username
 
     @validator('password')
     def password_strength(cls, v):
-        if len(v) < 6:
-            raise ValueError('Password must be at least 6 characters long')
+        if len(v) < 4:
+            raise ValueError('Password must be at least 4 characters long')
         return v
+
+    @validator('email')
+    def email_validation(cls, v):
+        if v and v.strip():
+            # Basic email validation
+            if '@' not in v or '.' not in v.split('@')[-1]:
+                raise ValueError('Please enter a valid email address')
+            return v.lower().strip()
+        return None
 
 class UserLogin(BaseModel):
     username: str
     password: str
+
+    @validator('username')
+    def normalize_username(cls, v):
+        return v.lower().strip()
 
 class UserResponse(BaseModel):
     id: int

@@ -495,36 +495,36 @@
                     <h2>👋 Welcome back to Jobo!</h2>
                     <p>I'm your personalized AI assistant. I remember our previous conversations and adapt to your communication style.</p>
                     <p>What would you like to talk about today?</p>
+            </div>
+        </div>
+
+        <div class="typing-indicator" id="typing-indicator">
+            <div class="message-avatar">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div>
+                Jobo is thinking
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
                 </div>
             </div>
+        </div>
 
-            <div class="typing-indicator" id="typing-indicator">
-                <div class="message-avatar">
-                    <i class="fas fa-robot"></i>
-                </div>
-                <div>
-                    Jobo is thinking
-                    <div class="typing-dots">
-                        <div class="typing-dot"></div>
-                        <div class="typing-dot"></div>
-                        <div class="typing-dot"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="chat-input-container">
-                <form class="chat-input-form" id="chat-form">
-                    <input 
-                        type="text" 
-                        class="chat-input" 
-                        id="message-input" 
-                        placeholder="Type your message to Jobo..."
-                        autocomplete="off"
-                    >
-                    <button type="submit" class="send-button" id="send-button">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </form>
+        <div class="chat-input-container">
+            <form class="chat-input-form" id="chat-form">
+                <input 
+                    type="text" 
+                    class="chat-input" 
+                    id="message-input" 
+                    placeholder="Type your message to Jobo..."
+                    autocomplete="off"
+                >
+                <button type="submit" class="send-button" id="send-button">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </form>
             </div>
         </div>
     </div>
@@ -783,7 +783,7 @@
                 
                 this.init();
             }
-            
+
             init() {
                 this.chatForm.addEventListener('submit', (e) => {
                     e.preventDefault();
@@ -805,7 +805,7 @@
                     }
                 }, { once: true });
             }
-            
+
             async sendMessage() {
                 const message = this.messageInput.value.trim();
                 if (!message) return;
@@ -849,7 +849,7 @@
                     this.setLoading(false);
                 }
             }
-            
+
             addMessage(content, sender) {
                 const messageDiv = document.createElement('div');
                 messageDiv.className = `message ${sender}`;
@@ -874,7 +874,7 @@
                 this.messagesContainer.appendChild(messageDiv);
                 this.scrollToBottom();
             }
-            
+
             setLoading(loading) {
                 this.sendButton.disabled = loading;
                 this.messageInput.disabled = loading;
@@ -886,7 +886,7 @@
                     this.typingIndicator.style.display = 'none';
                 }
             }
-            
+
             scrollToBottom() {
                 setTimeout(() => {
                     this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
