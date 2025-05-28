@@ -1,29 +1,47 @@
-# Jobo AI Assistant
+# 🤖 Jobo AI Assistant
 
 A personalized AI assistant that learns from user interactions, adapts to communication styles, and provides increasingly personalized responses using Claude Sonnet API.
 
-## Features
+## ✅ Current Status
+- Fully deployed and operational on Railway
+- PostgreSQL and Redis services connected
+- Web interface and API endpoints active
 
-- **Personalized Learning**: Learns from every interaction to adapt responses
-- **Three-Tier Memory System**: 
-  - Redis for short-term conversation memory
-  - PostgreSQL for structured user data
-  - ChromaDB for semantic vector search
-- **Communication Style Adaptation**: Adjusts formality and verbosity based on user patterns
-- **Interest Tracking**: Identifies and remembers user interests and topics
-- **Feedback System**: Learns from user satisfaction ratings
-- **Insights Dashboard**: Provides analytics on user patterns and preferences
+## ✨ Features
+- **Intelligent Conversations** with Claude Sonnet API
+- **Personalized Learning** that adapts to your style
+- **Three-Tier Memory System** (Redis + PostgreSQL + Vector DB)
+- **Beautiful Web Interface** with real-time chat
+- **Pattern Recognition** for interests and communication preferences
+- **Feedback Learning** from user satisfaction
+- **Insights Dashboard** for analytics on user patterns
 
-## Tech Stack
+## 🏗️ Architecture
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   FastAPI App   │    │   Claude API    │    │   ChromaDB      │
+│                 │────│                 │    │   (Vectors)     │
+│   - Routes      │    │   - Responses   │    │                 │
+│   - Middleware  │    │   - Context     │    └─────────────────┘
+└─────────────────┘    └─────────────────┘              │
+         │                                               │
+         │              ┌─────────────────┐              │
+         └──────────────│   PostgreSQL    │──────────────┘
+                        │                 │
+                        │   - Profiles    │
+                        │   - Interactions│
+                        │   - Patterns    │
+                        └─────────────────┘
+                                 │
+                        ┌─────────────────┐
+                        │     Redis       │
+                        │                 │
+                        │ - Short Memory  │
+                        │ - Sessions      │
+                        └─────────────────┘
+```
 
-- **Backend**: FastAPI (Python 3.11+)
-- **Database**: PostgreSQL (Railway-hosted)
-- **Vector DB**: ChromaDB (embedded mode)
-- **Cache**: Redis (Railway-hosted)
-- **AI**: Claude Sonnet API (Anthropic)
-- **Deployment**: Railway
-
-## Quick Start
+## 🚀 Quick Start
 
 ### Local Development
 
@@ -70,7 +88,7 @@ railway variables set SECRET_KEY=$(openssl rand -hex 32)
 railway up
 ```
 
-## API Endpoints
+## 📋 API Reference
 
 ### Chat
 ```bash
@@ -96,52 +114,11 @@ POST /api/v1/feedback
 GET /api/v1/insights/user123
 ```
 
-## Example Usage
+## 🧩 Configuration
 
-```python
-import requests
+See [CONFIGURATION.md](./CONFIGURATION.md) for all required and optional environment variables.
 
-# Chat with Jobo
-response = requests.post("http://localhost:8000/api/v1/chat", json={
-    "user_id": "test_user",
-    "message": "Hi Jobo, I'm interested in learning Python programming"
-})
-
-print(response.json())
-# {
-#   "response": "Hello! I'd be happy to help you learn Python programming...",
-#   "interaction_id": "abc123",
-#   "context_used": "User Profile: - Name: User - Interests: Not specified..."
-# }
-```
-
-## Architecture
-
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   FastAPI App   │    │   Claude API    │    │   ChromaDB      │
-│                 │────│                 │    │   (Vectors)     │
-│   - Routes      │    │   - Responses   │    │                 │
-│   - Middleware  │    │   - Context     │    └─────────────────┘
-└─────────────────┘    └─────────────────┘              │
-         │                                               │
-         │              ┌─────────────────┐              │
-         └──────────────│   PostgreSQL    │──────────────┘
-                        │                 │
-                        │   - Profiles    │
-                        │   - Interactions│
-                        │   - Patterns    │
-                        └─────────────────┘
-                                 │
-                        ┌─────────────────┐
-                        │     Redis       │
-                        │                 │
-                        │ - Short Memory  │
-                        │ - Sessions      │
-                        └─────────────────┘
-```
-
-## Learning System
+## 🧠 Learning System
 
 Jobo learns from:
 - **Communication patterns**: Message length, question frequency, formality
@@ -150,7 +127,7 @@ Jobo learns from:
 - **Feedback**: User satisfaction ratings
 - **Context usage**: What information is most relevant
 
-## Development
+## 🛠️ Development
 
 ### Project Structure
 ```
@@ -174,16 +151,10 @@ app/
 
 ### Testing
 ```bash
-# Run tests
 pytest tests/
-
-# Test specific endpoint
-curl -X POST "http://localhost:8000/api/v1/chat" \
-  -H "Content-Type: application/json" \
-  -d '{"user_id": "test", "message": "Hello!"}'
 ```
 
-## Contributing
+## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch
@@ -191,11 +162,11 @@ curl -X POST "http://localhost:8000/api/v1/chat" \
 4. Add tests
 5. Submit a pull request
 
-## License
+## 📄 License
 
 MIT License - see LICENSE file for details.
 
-## Support
+## 💬 Support
 
 For issues and questions:
 - Check the `/docs` endpoint for API documentation

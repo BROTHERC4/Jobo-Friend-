@@ -1,98 +1,60 @@
-# Railway Deployment Guide for Jobo AI Assistant
+# 🚀 Deploy Your Own Jobo Instance
 
-## Quick Fix for Current Issue
+## Prerequisites
+- Railway account
+- Anthropic API key
+- GitHub account
 
-The deployment is failing because Railway is looking at the parent directory instead of the `personalized-ai-assistant/` folder. Here are the solutions:
+## 5-Step Deployment
+1. Fork this repository
+2. Connect to Railway
+3. Add PostgreSQL + Redis services
+4. Set environment variables
+5. Deploy and test
 
-### Option 1: Deploy from Correct Directory (Recommended)
+## Detailed Steps
 
-1. **Navigate to the correct directory in Railway**:
-   - In Railway dashboard, go to your project settings
-   - Under "Source", make sure the root directory is set to `personalized-ai-assistant/`
-   - Or redeploy by connecting specifically to the `personalized-ai-assistant` folder
-
-2. **Alternative: Use Railway CLI from correct directory**:
+1. **Clone and setup**:
 ```bash
 cd "Jobo (Friend)/personalized-ai-assistant"
+```
+
+2. **Install Railway CLI**:
+```bash
+npm install -g @railway/cli
+```
+
+3. **Initialize Railway project**:
+```bash
 railway login
 railway init
-railway add postgresql
-railway add redis
-railway up
 ```
 
-### Option 2: Move Files to Root (If needed)
-
-If Railway can't detect the subdirectory, move all files from `personalized-ai-assistant/` to the root of your repository.
-
-## Environment Variables Required
-
-Make sure these are set in Railway:
-
-```bash
-ANTHROPIC_API_KEY=your_claude_api_key_here
-SECRET_KEY=your_secret_key_here
-DATABASE_URL=postgresql://... (automatically provided by Railway)
-REDIS_URL=redis://... (automatically provided by Railway)
-ENVIRONMENT=production
-```
-
-## Deployment Steps
-
-1. **Connect Repository**:
-   - Connect your GitHub repository to Railway
-   - Make sure it's pointing to the `personalized-ai-assistant` directory
-
-2. **Add Services**:
+4. **Add services**:
 ```bash
 railway add postgresql
 railway add redis
 ```
 
-3. **Set Environment Variables**:
+5. **Set environment variables**:
 ```bash
 railway variables set ANTHROPIC_API_KEY=your_key_here
 railway variables set SECRET_KEY=$(openssl rand -hex 32)
 ```
 
-4. **Deploy**:
+6. **Deploy**:
 ```bash
 railway up
 ```
 
-## Troubleshooting
+## Verification
+- Visit your Railway app URL
+- Test the web interface and chat
+- Check `/docs` for API documentation
+- Use `/health` endpoint for health check
 
-### Build Fails with "Nixpacks build failed"
-- Ensure you're in the `personalized-ai-assistant/` directory
-- Check that `requirements.txt`, `Dockerfile`, and `nixpacks.toml` are present
-- Verify Python version compatibility
-
-### Database Connection Issues
-- Ensure PostgreSQL service is added and running
-- Check that `DATABASE_URL` environment variable is set
-- Verify database tables are created (they auto-create on first run)
-
-### Redis Connection Issues
-- Ensure Redis service is added and running
-- Check that `REDIS_URL` environment variable is set
-
-### API Key Issues
-- Verify `ANTHROPIC_API_KEY` is set correctly
-- Test the key works with a simple API call
-
-## Testing Deployment
-
-Once deployed, test these endpoints:
-
-1. **Health Check**: `GET /health`
-2. **API Info**: `GET /api`
-3. **Web Interface**: `GET /`
-4. **Chat API**: `POST /api/v1/chat`
-
-## Local Testing Before Deployment
-
+## Local Testing (Optional)
 ```bash
-cd "Jobo (Friend)/personalized-ai-assistant"
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
@@ -104,9 +66,5 @@ uvicorn app.main:app --reload
 Visit `http://localhost:8000` to test the interface.
 
 ## Support
-
-If deployment continues to fail:
-1. Check Railway logs for specific error messages
-2. Ensure all files are in the correct directory structure
-3. Verify all environment variables are set
-4. Test locally first to ensure the application works 
+- For issues, check Railway logs and `/docs` endpoint
+- For configuration, see CONFIGURATION.md 
