@@ -490,7 +490,7 @@
 
         <!-- Chat Container -->
         <div class="chat-container" id="chat-container">
-            <div class="chat-messages" id="chat-messages">
+        <div class="chat-messages" id="chat-messages">
                 <div class="welcome-message" id="welcome-message">
                     <h2>👋 Welcome back to Jobo!</h2>
                     <p>I'm your personalized AI assistant. I remember our previous conversations and adapt to your communication style.</p>
@@ -673,7 +673,18 @@
                         this.updateUserInfo();
                         this.showChat();
                     } else {
-                        errorDiv.textContent = data.detail || 'Login failed';
+                        // Better error handling for different types of errors
+                        let errorMessage = 'Login failed';
+                        if (data.detail) {
+                            if (typeof data.detail === 'string') {
+                                errorMessage = data.detail;
+                            } else if (Array.isArray(data.detail)) {
+                                errorMessage = data.detail.map(err => err.msg || err.message || err).join(', ');
+                            } else {
+                                errorMessage = JSON.stringify(data.detail);
+                            }
+                        }
+                        errorDiv.textContent = errorMessage;
                         errorDiv.style.display = 'block';
                     }
                 } catch (error) {
@@ -720,7 +731,31 @@
                         this.updateUserInfo();
                         this.showChat();
                     } else {
-                        errorDiv.textContent = data.detail || 'Registration failed';
+                        // Better error handling for different types of errors
+                        let errorMessage = 'Registration failed';
+                        if (data.detail) {
+                            if (typeof data.detail === 'string') {
+                                errorMessage = data.detail;
+                            } else if (Array.isArray(data.detail)) {
+                                // Handle validation errors from Pydantic
+                                errorMessage = data.detail.map(err => {
+                                    if (err.msg) return err.msg;
+                                    if (err.message) return err.message;
+                                    return err;
+                                }).join(', ');
+                            } else {
+                                errorMessage = JSON.stringify(data.detail);
+                            }
+                        }
+                        
+                        // Special handling for common errors
+                        if (errorMessage.includes('Username already registered')) {
+                            errorMessage = 'This username is already taken. Please try a different one.';
+                        } else if (errorMessage.includes('Email already registered')) {
+                            errorMessage = 'This email is already registered. Please use a different email or try logging in.';
+                        }
+                        
+                        errorDiv.textContent = errorMessage;
                         errorDiv.style.display = 'block';
                     }
                 } catch (error) {

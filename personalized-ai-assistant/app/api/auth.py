@@ -135,8 +135,14 @@ async def get_current_user(request: Request, db: Session = Depends(get_db)) -> U
 async def register(user_data: UserRegister, db: Session = Depends(get_db)):
     """Register a new user and create their AI profile"""
     try:
-        # Check if username already exists
-        existing_user = db.query(User).filter(User.username == user_data.username).first()
+        # Normalize the data
+        normalized_username = user_data.username.lower().strip()
+        normalized_email = user_data.email.lower().strip() if user_data.email else None
+        
+        # Check if username already exists (case insensitive)
+        existing_user = db.query(User).filter(
+            User.username.ilike(normalized_username)
+        ).first()
         if existing_user:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -144,8 +150,10 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
             )
         
         # Check if email already exists (if provided)
-        if user_data.email:
-            existing_email = db.query(User).filter(User.email == user_data.email).first()
+        if normalized_email:
+            existing_email = db.query(User).filter(
+                User.email.ilike(normalized_email)
+            ).first()
             if existing_email:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
@@ -161,8 +169,8 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
         
         # Create authentication user
         new_user = User(
-            username=user_data.username,
-            email=user_data.email,
+            username=normalized_username,
+            email=normalized_email,
             password_hash=stored_hash,
             user_id=user_id,
             display_name=user_data.display_name or user_data.username
@@ -186,7 +194,7 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
         # Calculate expires_in seconds
         expires_in = int((expires_at - datetime.utcnow()).total_seconds())
         
-        logger.info(f"New user registered: {user_data.username} with user_id: {user_id}")
+        logger.info(f"New user registered: {normalized_username} with user_id: {user_id}")
         
         return AuthResponse(
             access_token=token,
@@ -217,10 +225,16 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
 async def login(credentials: UserLogin, db: Session = Depends(get_db)):
     """Authenticate user and create session token"""
     try:
-        # Find user by username
-        user = db.query(User).filter(User.username == credentials.username).first()
+        # Normalize username for case-insensitive lookup
+        normalized_username = credentials.username.lower().strip()
+        
+        # Find user by username (case insensitive)
+        user = db.query(User).filter(
+            User.username.ilike(normalized_username)
+        ).first()
         
         if not user or not user.is_active:
+            logger.warning(f"Login attempt failed: user not found or inactive - {normalized_username}")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid username or password"
@@ -228,6 +242,7 @@ async def login(credentials: UserLogin, db: Session = Depends(get_db)):
         
         # Verify password
         if not AuthService.verify_password(credentials.password, user.password_hash):
+            logger.warning(f"Login attempt failed: incorrect password - {normalized_username}")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid username or password"
@@ -239,7 +254,7 @@ async def login(credentials: UserLogin, db: Session = Depends(get_db)):
         # Calculate expires_in seconds
         expires_in = int((expires_at - datetime.utcnow()).total_seconds())
         
-        logger.info(f"User logged in: {user.username}")
+        logger.info(f"User logged in successfully: {user.username}")
         
         return AuthResponse(
             access_token=token,
@@ -288,6 +303,29 @@ async def logout(request: Request, db: Session = Depends(get_db)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Logout failed"
         )
+
+@router.get("/debug/users")
+async def debug_users(db: Session = Depends(get_db)):
+    """Debug endpoint to see registered users (for development only)"""
+    try:
+        users = db.query(User).all()
+        return {
+            "total_users": len(users),
+            "users": [
+                {
+                    "id": user.id,
+                    "username": user.username,
+                    "email": user.email,
+                    "display_name": user.display_name,
+                    "is_active": user.is_active,
+                    "created_at": user.created_at.isoformat()
+                }
+                for user in users
+            ]
+        }
+    except Exception as e:
+        logger.error(f"Debug users error: {e}")
+        return {"error": str(e)}
 
 @router.get("/me", response_model=UserResponse)
 async def get_current_user_info(current_user: User = Depends(get_current_user)):
