@@ -19,9 +19,14 @@ class PersonalizedAssistant:
         
         # Initialize Claude client with error handling
         try:
-            self.client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
-            self.claude_available = True
-            logger.info("Claude API initialized successfully")
+            if not settings.anthropic_api_key:
+                logger.warning("ANTHROPIC_API_KEY not set - using fallback responses")
+                self.client = None
+                self.claude_available = False
+            else:
+                self.client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
+                self.claude_available = True
+                logger.info("Claude API initialized successfully")
         except Exception as e:
             logger.error(f"Failed to initialize Claude API: {e}")
             self.client = None

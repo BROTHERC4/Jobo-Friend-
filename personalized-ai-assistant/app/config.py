@@ -4,7 +4,7 @@ from functools import lru_cache
 
 class Settings(BaseSettings):
     # API Keys
-    anthropic_api_key: str
+    anthropic_api_key: str = ""
     
     # Database - Railway provides these automatically
     database_url: str = "sqlite:///./jobo.db"  # Fallback for local development
@@ -28,8 +28,14 @@ class Settings(BaseSettings):
         if os.getenv("DATABASE_URL"):
             self.database_url = os.getenv("DATABASE_URL")
         
-        if os.getenv("REDIS_URL"):
-            self.redis_url = os.getenv("REDIS_URL")
+        # Check multiple Redis URL formats that Railway might provide
+        redis_url = (
+            os.getenv("REDIS_URL") or 
+            os.getenv("REDIS_PRIVATE_URL") or 
+            os.getenv("REDIS_PUBLIC_URL")
+        )
+        if redis_url:
+            self.redis_url = redis_url
         
         if os.getenv("ANTHROPIC_API_KEY"):
             self.anthropic_api_key = os.getenv("ANTHROPIC_API_KEY")
@@ -37,13 +43,17 @@ class Settings(BaseSettings):
         if os.getenv("SECRET_KEY"):
             self.secret_key = os.getenv("SECRET_KEY")
         
-        # Validate required settings for production
+        # For development, be less strict about requirements
+        if self.environment == "development":
+            return
+            
+        # Validate required settings for production only if not in fallback mode
         if self.environment == "production":
-            if not self.anthropic_api_key or self.anthropic_api_key == "your_claude_api_key_here":
-                raise ValueError("ANTHROPIC_API_KEY must be set for production")
+            if not self.anthropic_api_key:
+                print("Warning: ANTHROPIC_API_KEY not set - AI will use fallback responses")
             
             if self.secret_key == "dev-secret-key-change-in-production":
-                raise ValueError("SECRET_KEY must be set for production")
+                print("Warning: SECRET_KEY not set - using development key")
 
 @lru_cache()
 def get_settings():

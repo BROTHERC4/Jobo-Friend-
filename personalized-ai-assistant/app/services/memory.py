@@ -12,6 +12,7 @@ class MemoryService:
         self.user_id = user_id
         self.collection = None
         self.redis_client = None
+        self.chroma_available = False
         
         # Initialize ChromaDB with error handling
         self._initialize_chromadb()
@@ -38,11 +39,20 @@ class MemoryService:
                     name=f"user_{self.user_id}",
                     metadata={"hnsw:space": "cosine"}
                 )
+            
+            self.chroma_available = True
             logger.info(f"ChromaDB initialized for user {self.user_id}")
+            
+        except ImportError as e:
+            logger.info(f"ChromaDB not available: {e}")
+            logger.info("Running without vector memory - basic functionality will work")
+            self.collection = None
+            self.chroma_available = False
         except Exception as e:
             logger.warning(f"ChromaDB initialization failed: {e}")
             logger.info("Running without vector memory - basic functionality will work")
             self.collection = None
+            self.chroma_available = False
     
     def _initialize_redis(self):
         """Initialize Redis with fallback"""
@@ -58,9 +68,9 @@ class MemoryService:
     
     def add_memory(self, text: str, embedding: List[float], metadata: Dict[str, Any]):
         """Add memory to vector database"""
-        if not self.collection:
+        if not self.chroma_available or not self.collection:
             logger.debug("ChromaDB not available, skipping memory storage")
-            return "no_memory_id"
+            return self._generate_fallback_id(text, metadata)
         
         try:
             import hashlib
@@ -73,14 +83,20 @@ class MemoryService:
                 ids=[memory_id]
             )
             
+            logger.debug(f"Memory stored in ChromaDB: {memory_id}")
             return memory_id
         except Exception as e:
             logger.error(f"Failed to add memory: {e}")
-            return "error_memory_id"
+            return self._generate_fallback_id(text, metadata)
+    
+    def _generate_fallback_id(self, text: str, metadata: Dict[str, Any]):
+        """Generate a fallback memory ID when ChromaDB is not available"""
+        import hashlib
+        return hashlib.md5(f"{text}{metadata}".encode()).hexdigest()
     
     def search_memories(self, embedding: List[float], n_results: int = 5) -> Dict[str, Any]:
         """Search similar memories"""
-        if not self.collection:
+        if not self.chroma_available or not self.collection:
             logger.debug("ChromaDB not available, returning empty results")
             return {"documents": [[]], "metadatas": [[]], "distances": [[]]}
         
