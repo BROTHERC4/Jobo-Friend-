@@ -375,14 +375,19 @@ Your goal is to be a helpful, intelligent companion that {value_growth}."""
                 logger.info("🌐 Enabling web search for this query")
             
             # Call Claude API with enhanced context and optional web search
-            message = self.client.messages.create(
-                model="claude-sonnet-4-20250514",
-                max_tokens=2000,  # Increased for Claude Sonnet 4's enhanced capabilities
-                temperature=0.7,
-                system=system_prompt,
-                messages=[{"role": "user", "content": user_input}],
-                tools=tools if tools else None
-            )
+            api_params = {
+                "model": "claude-sonnet-4-20250514",
+                "max_tokens": 2000,  # Increased for Claude Sonnet 4's enhanced capabilities
+                "temperature": 0.7,
+                "system": system_prompt,
+                "messages": [{"role": "user", "content": user_input}]
+            }
+            
+            # Only add tools parameter if we have tools to use
+            if tools:
+                api_params["tools"] = tools
+            
+            message = self.client.messages.create(**api_params)
             
             # Extract response text handling different content types
             response_text = ""
