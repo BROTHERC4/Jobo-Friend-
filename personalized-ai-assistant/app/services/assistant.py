@@ -354,8 +354,8 @@ Your goal is to be a helpful, intelligent companion that {value_growth}."""
             
             # Call Claude API with enhanced context
             message = self.client.messages.create(
-                model="claude-3-5-sonnet-20241022",
-                max_tokens=1200,  # Slightly higher for more detailed responses
+                model="claude-sonnet-4-20250514",
+                max_tokens=2000,  # Increased for Claude Sonnet 4's enhanced capabilities
                 temperature=0.7,
                 system=system_prompt,
                 messages=[{"role": "user", "content": user_input}]
