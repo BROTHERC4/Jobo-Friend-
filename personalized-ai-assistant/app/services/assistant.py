@@ -141,6 +141,7 @@ class IntelligentPersonalizedAssistant:
         """Log the initialization status for debugging and monitoring"""
         logger.info(f"🤖 Jobo Intelligence Status for user {self.user_id}:")
         logger.info(f"  Claude API: {'✅ Available' if self.claude_available else '❌ Fallback mode'}")
+        logger.info(f"  Web Search: {'✅ Active' if self.claude_available and self.intelligence_enabled else '❌ Disabled'}")
         logger.info(f"  Semantic Understanding: {'✅ Active' if self.embedding_service else '❌ Disabled'}")
         logger.info(f"  Long-term Memory: {'✅ Active' if self.memory_service and getattr(self.memory_service, 'chroma_available', False) else '❌ Disabled'}")
         logger.info(f"  Short-term Memory: {'✅ Active' if self.memory_service and getattr(self.memory_service, 'redis_client', None) else '❌ Disabled'}")
@@ -261,6 +262,7 @@ class IntelligentPersonalizedAssistant:
 {'- You can reference and build upon past conversations through long-term memory' if self.intelligence_enabled else '- You have access to recent conversation history only'}
 {'- You understand context and meaning, not just keywords' if self.intelligence_enabled else '- You work with direct text matching and learned patterns'}
 {'- You can trace intellectual journeys and growth over time' if self.intelligence_enabled else '- You focus on immediate conversation context'}
+{'- You have real-time web search capabilities for current information (weather, news, facts, etc.)' if self.intelligence_enabled else '- You work with static knowledge up to your training cutoff'}
 
 Communication Guidelines:
 - Be conversational, warm, and genuinely helpful
@@ -269,6 +271,7 @@ Communication Guidelines:
 - {learning_awareness}
 - Be encouraging and supportive of the user's growth and curiosity
 - {memory_understanding}
+{'- When users ask about current events, weather, or real-time data, use web search to provide accurate, up-to-date information' if self.intelligence_enabled else '- For current information, acknowledge your knowledge limitations'}
 
 Your goal is to be a helpful, intelligent companion that {value_growth}."""
 
@@ -344,7 +347,7 @@ Your goal is to be a helpful, intelligent companion that {value_growth}."""
         return response_data
     
     async def _generate_intelligent_response(self, user_input: str) -> str:
-        """Generate response using Claude with full intelligence context"""
+        """Generate response using Claude with full intelligence context and web search"""
         try:
             # Build comprehensive context
             context = self._build_intelligent_context(user_input)
@@ -352,17 +355,47 @@ Your goal is to be a helpful, intelligent companion that {value_growth}."""
             # Generate intelligent system prompt
             system_prompt = self._generate_intelligent_system_prompt(context, user_input)
             
-            # Call Claude API with enhanced context
+            # Check if the query might benefit from web search
+            web_search_keywords = [
+                'weather', 'current', 'latest', 'news', 'today', 'now', 'recent',
+                'what is happening', 'what\'s new', 'update', 'real-time', 'live',
+                'stock price', 'exchange rate', 'score', 'results', 'schedule'
+            ]
+            
+            needs_web_search = any(keyword in user_input.lower() for keyword in web_search_keywords)
+            
+            # Prepare tools for Claude API call
+            tools = []
+            if needs_web_search or 'search' in user_input.lower():
+                tools.append({
+                    "type": "web_search_20250305",
+                    "name": "web_search",
+                    "max_uses": 3  # Limit searches per request
+                })
+                logger.info("🌐 Enabling web search for this query")
+            
+            # Call Claude API with enhanced context and optional web search
             message = self.client.messages.create(
                 model="claude-sonnet-4-20250514",
                 max_tokens=2000,  # Increased for Claude Sonnet 4's enhanced capabilities
                 temperature=0.7,
                 system=system_prompt,
-                messages=[{"role": "user", "content": user_input}]
+                messages=[{"role": "user", "content": user_input}],
+                tools=tools if tools else None
             )
             
-            response_text = message.content[0].text
+            # Extract response text handling different content types
+            response_text = ""
+            for content in message.content:
+                if content.type == "text":
+                    response_text += content.text
+                elif content.type == "web_search_tool_result":
+                    # Web search results are automatically incorporated by Claude
+                    pass
+            
             logger.info(f"✅ Generated intelligent response using Claude API ({len(response_text)} characters)")
+            if tools:
+                logger.info("🌐 Response included real-time web data")
             
             return response_text
             
@@ -383,7 +416,7 @@ Your goal is to be a helpful, intelligent companion that {value_growth}."""
         
         if any(word in user_lower for word in ['hello', 'hi', 'hey', 'good morning', 'good afternoon']):
             if self.intelligence_enabled:
-                return f"Hello{name_greeting}! I'm Jobo, your AI assistant with enhanced intelligence capabilities. I can remember our past conversations, understand context and meaning, and learn from our interactions over time. What would you like to explore today?"
+                return f"Hello{name_greeting}! I'm Jobo, your AI assistant with enhanced intelligence capabilities. I can remember our past conversations, understand context and meaning, learn from our interactions over time, and access real-time information from the web for things like weather, news, and current events. What would you like to explore today?"
             else:
                 return f"Hello{name_greeting}! I'm Jobo, your AI assistant. I'm currently in basic mode due to technical limitations, but I'm still here to help you as best I can. What can I assist you with?"
         
@@ -476,6 +509,11 @@ Your goal is to be a helpful, intelligent companion that {value_growth}."""
                 },
                 "learning_system": {
                     "available": self.learning_service is not None
+                },
+                "web_search": {
+                    "available": self.claude_available and self.intelligence_enabled,
+                    "model_support": "claude-sonnet-4-20250514",
+                    "description": "Real-time internet access for weather, news, and current information"
                 }
             },
             "user_profile": {
