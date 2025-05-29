@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Jobo AI Assistant</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="/static/css/fonts.css" rel="stylesheet">
@@ -20,6 +20,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            /* Prevent zoom on input focus on iOS */
+            -webkit-text-size-adjust: 100%;
+            /* Prevent horizontal scrolling */
+            overflow-x: hidden;
         }
 
         .container {
@@ -33,6 +37,8 @@
             flex-direction: column;
             overflow: hidden;
             backdrop-filter: blur(10px);
+            /* Ensure container stays in view on mobile */
+            position: relative;
         }
 
         /* Header styling */
@@ -293,12 +299,20 @@
             padding: 20px;
             background: white;
             border-top: 1px solid #e2e8f0;
+            /* Ensure input container stays visible on mobile */
+            position: sticky;
+            bottom: 0;
+            z-index: 100;
+            /* Prevent container from disappearing behind mobile keyboard */
+            min-height: 80px;
         }
 
         .chat-input-form {
             display: flex;
             gap: 10px;
             align-items: center;
+            /* Ensure form elements stay aligned */
+            width: 100%;
         }
 
         .chat-input {
@@ -309,11 +323,25 @@
             font-size: 1rem;
             outline: none;
             transition: all 0.3s ease;
+            /* Prevent input from disappearing on mobile */
+            min-height: 50px;
+            /* Prevent zoom on iOS */
+            font-size: 16px;
+            /* Ensure input stays visible */
+            background: white;
+            /* Prevent input from being cut off */
+            box-sizing: border-box;
+            /* Handle long text properly */
+            word-wrap: break-word;
+            resize: none;
         }
 
         .chat-input:focus {
             border-color: #4facfe;
             box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+            /* Ensure focus state is visible on mobile */
+            position: relative;
+            z-index: 101;
         }
 
         .send-button {
@@ -405,10 +433,21 @@
         }
 
         @media (max-width: 768px) {
+            body {
+                /* Prevent body scroll when keyboard appears */
+                position: fixed;
+                width: 100%;
+                height: 100%;
+            }
+
             .container {
                 width: 95%;
                 height: 95vh;
                 border-radius: 15px;
+                /* Ensure container adapts to mobile keyboard */
+                max-height: 100vh;
+                /* Prevent container from being pushed off screen */
+                position: relative;
             }
 
             .auth-form {
@@ -440,6 +479,108 @@
                 width: 10px;
                 height: 10px;
             }
+
+            /* Mobile-specific chat input improvements */
+            .chat-input-container {
+                padding: 15px;
+                /* Ensure input area is always visible */
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: white;
+                border-top: 1px solid #e2e8f0;
+                z-index: 1000;
+                /* Account for mobile safe areas */
+                padding-bottom: max(15px, env(safe-area-inset-bottom));
+            }
+
+            .chat-input {
+                /* Larger touch target for mobile */
+                min-height: 44px;
+                padding: 12px 16px;
+                /* Ensure text is readable on mobile */
+                font-size: 16px;
+                /* Prevent input zoom on iOS */
+                -webkit-appearance: none;
+                border-radius: 22px;
+            }
+
+            .send-button {
+                /* Larger touch target for mobile */
+                width: 44px;
+                height: 44px;
+                flex-shrink: 0;
+            }
+
+            .chat-messages {
+                /* Account for fixed input container */
+                padding-bottom: 100px;
+                /* Ensure messages don't get cut off */
+                margin-bottom: 0;
+            }
+
+            /* Handle mobile keyboard appearance */
+            .chat-container {
+                /* Ensure chat container fills available space */
+                height: 100%;
+                max-height: 100vh;
+                overflow: hidden;
+            }
+        }
+
+        /* Additional mobile landscape support */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .container {
+                height: 98vh;
+            }
+            
+            .chat-input-container {
+                padding: 10px 15px;
+                padding-bottom: max(10px, env(safe-area-inset-bottom));
+            }
+        }
+
+        /* iOS Safari specific fixes */
+        @supports (-webkit-touch-callout: none) {
+            .chat-input {
+                /* Prevent iOS zoom */
+                font-size: 16px;
+                /* Fix iOS input styling */
+                -webkit-appearance: none;
+                border-radius: 25px;
+            }
+        }
+
+        /* Mobile keyboard open state */
+        body.keyboard-open {
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        body.keyboard-open .container {
+            height: 100vh;
+            max-height: 100vh;
+        }
+
+        body.keyboard-open .chat-messages {
+            padding-bottom: 120px;
+        }
+
+        /* Ensure input is always visible and accessible */
+        .chat-input:focus {
+            /* Force input to stay visible on mobile */
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+        }
+
+        /* Handle large text in input */
+        .chat-input {
+            /* Allow input to expand slightly for long text */
+            max-height: 120px;
+            overflow-y: auto;
+            /* Smooth scrolling for long text */
+            scroll-behavior: smooth;
         }
     </style>
 </head>
@@ -844,6 +985,7 @@
                 this.typingIndicator = document.getElementById('typing-indicator');
                 
                 this.init();
+                this.setupMobileKeyboardHandling();
             }
 
             init() {
@@ -866,6 +1008,71 @@
                         welcomeMessage.style.display = 'none';
                     }
                 }, { once: true });
+            }
+
+            setupMobileKeyboardHandling() {
+                // Handle mobile keyboard appearance
+                let initialViewportHeight = window.innerHeight;
+                
+                // Store initial viewport height
+                const setInitialHeight = () => {
+                    initialViewportHeight = window.innerHeight;
+                };
+                
+                // Handle viewport changes (keyboard appearance/disappearance)
+                const handleViewportChange = () => {
+                    const currentHeight = window.innerHeight;
+                    const heightDifference = initialViewportHeight - currentHeight;
+                    
+                    // If height decreased significantly, keyboard is likely open
+                    if (heightDifference > 150) {
+                        document.body.classList.add('keyboard-open');
+                        // Ensure input stays in view
+                        setTimeout(() => {
+                            this.messageInput.scrollIntoView({ 
+                                behavior: 'smooth', 
+                                block: 'center' 
+                            });
+                        }, 100);
+                    } else {
+                        document.body.classList.remove('keyboard-open');
+                    }
+                };
+
+                // Listen for viewport changes
+                window.addEventListener('resize', handleViewportChange);
+                window.addEventListener('orientationchange', () => {
+                    setTimeout(setInitialHeight, 500);
+                });
+
+                // Handle input focus/blur for mobile
+                this.messageInput.addEventListener('focus', () => {
+                    // Small delay to ensure keyboard is shown
+                    setTimeout(() => {
+                        this.messageInput.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'center' 
+                        });
+                    }, 300);
+                });
+
+                this.messageInput.addEventListener('blur', () => {
+                    // Reset any mobile-specific styling when input loses focus
+                    document.body.classList.remove('keyboard-open');
+                });
+
+                // Prevent zoom on double tap for the input
+                let lastTouchEnd = 0;
+                this.messageInput.addEventListener('touchend', (e) => {
+                    const now = (new Date()).getTime();
+                    if (now - lastTouchEnd <= 300) {
+                        e.preventDefault();
+                    }
+                    lastTouchEnd = now;
+                }, false);
+
+                // Set initial height
+                setInitialHeight();
             }
 
             async sendMessage() {
