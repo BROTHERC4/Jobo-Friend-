@@ -6,10 +6,39 @@ import logging
 
 from app.models.database import get_db
 from app.api.auth import get_current_user_id
-from app.services.vision_service import get_vision_service
-from app.services.proactive_service import get_proactive_service
-from app.services.memory_enhancement import get_memory_consolidation_service
-from app.services.memory import IntelligentMemoryService
+
+# Lazy imports to avoid import-time errors
+def get_vision_service():
+    try:
+        from app.services.vision_service import get_vision_service as _get_vision_service
+        return _get_vision_service()
+    except Exception as e:
+        logger.error(f"Failed to import vision service: {e}")
+        raise
+
+def get_proactive_service(user_id: str, db):
+    try:
+        from app.services.proactive_service import get_proactive_service as _get_proactive_service
+        return _get_proactive_service(user_id, db)
+    except Exception as e:
+        logger.error(f"Failed to import proactive service: {e}")
+        raise
+
+def get_memory_consolidation_service(user_id: str):
+    try:
+        from app.services.memory_enhancement import get_memory_consolidation_service as _get_memory_consolidation_service
+        return _get_memory_consolidation_service(user_id)
+    except Exception as e:
+        logger.error(f"Failed to import memory consolidation service: {e}")
+        raise
+
+def get_intelligent_memory_service(user_id: str):
+    try:
+        from app.services.memory import IntelligentMemoryService
+        return IntelligentMemoryService(user_id)
+    except Exception as e:
+        logger.error(f"Failed to import memory service: {e}")
+        raise
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -57,26 +86,39 @@ async def analyze_image(
         if len(image_data) > 10 * 1024 * 1024:  # 10MB limit
             raise HTTPException(status_code=400, detail="Image too large (max 10MB)")
         
-        # Analyze image
-        vision_service = get_vision_service()
-        analysis = vision_service.analyze_image(image_data, prompt)
+        # Analyze image with error handling for service availability
+        try:
+            vision_service = get_vision_service()
+            analysis = vision_service.analyze_image(image_data, prompt)
+        except Exception as service_error:
+            logger.error(f"Vision service error: {service_error}")
+            return {
+                "success": False,
+                "error": "Vision service temporarily unavailable",
+                "message": "Image analysis service is currently not available. Please try again later.",
+                "debug_info": str(service_error) if logger.getEffectiveLevel() <= 10 else None
+            }
         
         if "error" in analysis:
             raise HTTPException(status_code=500, detail=analysis["error"])
         
-        # Store analysis in memory for future reference
-        memory_service = IntelligentMemoryService(user_id)
-        memory_id = memory_service.add_memory(
-            text=f"Image Analysis: {analysis['description']}",
-            metadata={
-                "type": "image_analysis",
-                "filename": file.filename,
-                "prompt": prompt,
-                "image_size": len(image_data),
-                "insights": analysis.get('insights', []),
-                "suggestions": analysis.get('suggestions', [])
-            }
-        )
+        # Store analysis in memory for future reference with error handling
+        try:
+            memory_service = get_intelligent_memory_service(user_id)
+            memory_id = memory_service.add_memory(
+                text=f"Image Analysis: {analysis['description']}",
+                metadata={
+                    "type": "image_analysis",
+                    "filename": file.filename,
+                    "prompt": prompt,
+                    "image_size": len(image_data),
+                    "insights": analysis.get('insights', []),
+                    "suggestions": analysis.get('suggestions', [])
+                }
+            )
+        except Exception as memory_error:
+            logger.warning(f"Memory storage failed: {memory_error}")
+            memory_id = None
         
         return {
             "success": True,
@@ -103,8 +145,17 @@ async def get_daily_insights(
     and personalized recommendations for improvement.
     """
     try:
-        proactive_service = get_proactive_service(user_id, db)
-        insights = proactive_service.generate_daily_insights()
+        try:
+            proactive_service = get_proactive_service(user_id, db)
+            insights = proactive_service.generate_daily_insights()
+        except Exception as service_error:
+            logger.error(f"Proactive service error: {service_error}")
+            return {
+                "success": False,
+                "error": "Proactive insights service temporarily unavailable",
+                "message": "Daily insights service is currently not available. Please try again later.",
+                "debug_info": str(service_error) if logger.getEffectiveLevel() <= 10 else None
+            }
         
         return {
             "success": True,
@@ -165,12 +216,21 @@ async def consolidate_memories(
     memory efficiency and organization.
     """
     try:
-        consolidation_service = get_memory_consolidation_service(user_id)
-        
-        # Run optimization in background
-        background_tasks.add_task(
-            consolidation_service.optimize_memory_storage
-        )
+        try:
+            consolidation_service = get_memory_consolidation_service(user_id)
+            
+            # Run optimization in background
+            background_tasks.add_task(
+                consolidation_service.optimize_memory_storage
+            )
+        except Exception as service_error:
+            logger.error(f"Memory consolidation service error: {service_error}")
+            return {
+                "success": False,
+                "error": "Memory consolidation service temporarily unavailable",
+                "message": "Memory consolidation service is currently not available. Please try again later.",
+                "debug_info": str(service_error) if logger.getEffectiveLevel() <= 10 else None
+            }
         
         return {
             "success": True,
@@ -219,7 +279,7 @@ async def get_enhanced_memory_stats(
     and system performance.
     """
     try:
-        memory_service = IntelligentMemoryService(user_id)
+        memory_service = get_intelligent_memory_service(user_id)
         consolidation_service = get_memory_consolidation_service(user_id)
         
         # Get basic memory stats
@@ -298,7 +358,7 @@ async def get_intelligence_status(
     try:
         # Check all services
         vision_service = get_vision_service()
-        memory_service = IntelligentMemoryService(user_id)
+        memory_service = get_intelligent_memory_service(user_id)
         
         status = {
             "user_id": user_id,
@@ -343,4 +403,31 @@ async def get_intelligence_status(
 # Add these routes to the main router
 def get_enhanced_router():
     """Get the enhanced capabilities router"""
-    return router 
+    try:
+        # Test that the router and its dependencies are working
+        logger.info(f"🔧 Creating enhanced router with {len(router.routes)} routes")
+        
+        # Test a simple route to ensure the router is functional
+        if not hasattr(router, 'routes') or len(router.routes) == 0:
+            logger.error("❌ Enhanced router has no routes!")
+            
+        # Return the router
+        return router
+        
+    except Exception as e:
+        logger.error(f"❌ Error creating enhanced router: {e}")
+        import traceback
+        logger.error(f"❌ Full traceback: {traceback.format_exc()}")
+        
+        # Return a fallback router with basic functionality
+        fallback_router = APIRouter()
+        
+        @fallback_router.get("/test")
+        async def fallback_test():
+            return {
+                "success": False,
+                "message": "Enhanced features temporarily unavailable",
+                "error": "Service initialization failed"
+            }
+            
+        return fallback_router 

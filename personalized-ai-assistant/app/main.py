@@ -68,10 +68,22 @@ try:
     logger.info("🔄 Attempting to load enhanced AI capabilities...")
     from app.api.enhanced_routes import get_enhanced_router
     logger.info("✅ Enhanced routes module imported successfully")
+    
     enhanced_router = get_enhanced_router()
     logger.info("✅ Enhanced router created successfully")
+    logger.info(f"📋 Enhanced router has {len(enhanced_router.routes)} routes")
+    
+    # Log individual routes for debugging
+    for route in enhanced_router.routes:
+        logger.info(f"📍 Route: {route.path} ({route.methods})")
+    
     app.include_router(enhanced_router, prefix="/api/v1/enhanced", tags=["Enhanced AI"])
     logger.info("✅ Enhanced AI capabilities loaded successfully")
+    
+    # Verify routes were actually added to the app
+    enhanced_routes_count = len([route for route in app.routes if "/enhanced" in str(route.path)])
+    logger.info(f"🔍 Total enhanced routes registered in app: {enhanced_routes_count}")
+    
 except ImportError as e:
     logger.error(f"❌ Import error loading enhanced AI capabilities: {e}")
     import traceback
@@ -232,11 +244,22 @@ async def debug_info():
                 "/api/v1/feedback", 
                 "/api/v1/insights"
             ],
+            "enhanced": [
+                route.path for route in app.routes 
+                if hasattr(route, 'path') and "/enhanced" in str(route.path)
+            ],
             "legacy": [
                 "/api/v1/legacy/chat",
                 "/api/v1/legacy/feedback",
                 "/api/v1/legacy/insights/{user_id}"
             ]
+        },
+        "route_debug": {
+            "total_routes": len(app.routes),
+            "enhanced_routes_detected": len([
+                route for route in app.routes 
+                if hasattr(route, 'path') and "/enhanced" in str(route.path)
+            ])
         }
     }
 
