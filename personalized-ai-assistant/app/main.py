@@ -63,6 +63,16 @@ except Exception as e:
 app.include_router(auth_router, prefix="/api/v1/auth", tags=["Authentication"])
 app.include_router(router, prefix="/api/v1", tags=["AI Assistant"])
 
+# Include enhanced capabilities routes
+try:
+    from app.api.enhanced_routes import get_enhanced_router
+    enhanced_router = get_enhanced_router()
+    app.include_router(enhanced_router, prefix="/api/v1/enhanced", tags=["Enhanced AI"])
+    logger.info("Enhanced AI capabilities loaded successfully")
+except Exception as e:
+    logger.warning(f"Enhanced AI capabilities not loaded: {e}")
+    logger.info("Running with basic AI features only")
+
 @app.get("/ping")
 async def ping():
     """Simple ping endpoint to test if app is responding"""
@@ -159,6 +169,15 @@ async def api_info():
                 "chat": "/api/v1/chat",
                 "feedback": "/api/v1/feedback", 
                 "insights": "/api/v1/insights"
+            },
+            "enhanced": {
+                "vision_analysis": "/api/v1/enhanced/vision/analyze",
+                "daily_insights": "/api/v1/enhanced/insights/daily",
+                "pattern_analysis": "/api/v1/enhanced/insights/patterns",
+                "memory_optimization": "/api/v1/enhanced/memory/consolidate",
+                "memory_clusters": "/api/v1/enhanced/memory/clusters",
+                "conversation_summary": "/api/v1/enhanced/conversation/summarize",
+                "intelligence_status": "/api/v1/enhanced/intelligence/status"
             },
             "legacy": {
                 "chat": "/api/v1/legacy/chat",

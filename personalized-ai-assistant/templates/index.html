@@ -582,6 +582,197 @@
             /* Smooth scrolling for long text */
             scroll-behavior: smooth;
         }
+
+        /* Enhanced features styles */
+        .input-actions {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .action-button {
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: #374151;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .action-button:hover {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(79, 172, 254, 0.3);
+        }
+
+        .action-button.active {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        /* Modal styles for enhanced features */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 15px;
+        }
+
+        .modal-header h3 {
+            color: #1e293b;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .close {
+            color: #64748b;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #dc2626;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            border-color: #4facfe;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(79, 172, 254, 0.2);
+        }
+
+        .feature-card i {
+            font-size: 2rem;
+            color: #4facfe;
+            margin-bottom: 10px;
+        }
+
+        .feature-card h4 {
+            color: #1e293b;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .feature-card p {
+            color: #64748b;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        /* Image preview styles */
+        .image-preview {
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .image-preview img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 10px;
+            border: 2px solid #e5e7eb;
+        }
+
+        .image-preview .remove-image {
+            background: #dc2626;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            margin-top: 10px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        /* Insights display */
+        .insights-content {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .insight-section {
+            margin-bottom: 20px;
+        }
+
+        .insight-section h4 {
+            color: #1e293b;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .insight-item {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-left: 4px solid #4facfe;
+        }
+
+        .suggestion-item {
+            background: #fef3c7;
+            border-left-color: #f59e0b;
+        }
+
+        .engagement-score {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4facfe;
+            margin: 15px 0;
+        }
     </style>
 </head>
 <body>
@@ -682,6 +873,17 @@
 
         <div class="chat-input-container">
             <form class="chat-input-form" id="chat-form">
+                <div class="input-actions">
+                    <button type="button" class="action-button" id="image-upload-button" title="Upload Image">
+                        <i class="fas fa-image"></i>
+                    </button>
+                    <button type="button" class="action-button" id="insights-button" title="Get Daily Insights">
+                        <i class="fas fa-chart-line"></i>
+                    </button>
+                    <button type="button" class="action-button" id="memory-button" title="Memory Management">
+                        <i class="fas fa-brain"></i>
+                    </button>
+                </div>
                 <input 
                     type="text" 
                     class="chat-input" 
@@ -689,11 +891,72 @@
                     placeholder="Type your message to Jobo..."
                     autocomplete="off"
                 >
+                <input 
+                    type="file" 
+                    id="image-input" 
+                    accept="image/*" 
+                    style="display: none;"
+                >
                 <button type="submit" class="send-button" id="send-button">
                     <i class="fas fa-paper-plane"></i>
                 </button>
             </form>
             </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Features Modals -->
+    <div id="insights-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-chart-line"></i> AI Insights Dashboard</h3>
+                <span class="close" onclick="closeModal('insights-modal')">&times;</span>
+            </div>
+            <div class="feature-grid">
+                <div class="feature-card" onclick="getDailyInsights()">
+                    <i class="fas fa-calendar-day"></i>
+                    <h4>Daily Insights</h4>
+                    <p>Get personalized insights about your interaction patterns and preferences</p>
+                </div>
+                <div class="feature-card" onclick="getPatternAnalysis()">
+                    <i class="fas fa-brain"></i>
+                    <h4>Pattern Analysis</h4>
+                    <p>Deep analysis of your communication style and topic preferences</p>
+                </div>
+                <div class="feature-card" onclick="getIntelligenceStatus()">
+                    <i class="fas fa-cogs"></i>
+                    <h4>AI Status</h4>
+                    <p>Check which AI capabilities are active and available</p>
+                </div>
+            </div>
+            <div id="insights-display" class="insights-content" style="display: none;"></div>
+        </div>
+    </div>
+
+    <div id="memory-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-brain"></i> Memory Management</h3>
+                <span class="close" onclick="closeModal('memory-modal')">&times;</span>
+            </div>
+            <div class="feature-grid">
+                <div class="feature-card" onclick="getMemoryStats()">
+                    <i class="fas fa-chart-bar"></i>
+                    <h4>Memory Statistics</h4>
+                    <p>View your AI's memory usage and organization</p>
+                </div>
+                <div class="feature-card" onclick="getMemoryClusters()">
+                    <i class="fas fa-project-diagram"></i>
+                    <h4>Memory Clusters</h4>
+                    <p>See how your conversations are organized thematically</p>
+                </div>
+                <div class="feature-card" onclick="optimizeMemory()">
+                    <i class="fas fa-broom"></i>
+                    <h4>Optimize Memory</h4>
+                    <p>Consolidate and organize memories for better performance</p>
+                </div>
+            </div>
+            <div id="memory-display" class="insights-content" style="display: none;"></div>
         </div>
     </div>
 
@@ -1085,28 +1348,38 @@
                 this.setLoading(true);
 
                 try {
-                    const response = await fetch('/api/v1/chat', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${this.token}`
-                        },
-                        body: JSON.stringify({
-                            message: message
-                        })
-                    });
+                    let responseText;
+                    
+                    // Check if there's an image to analyze
+                    if (window.currentImageFile) {
+                        responseText = await window.sendImageAnalysis(message);
+                    } else {
+                        // Regular text chat
+                        const response = await fetch('/api/v1/chat', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${this.token}`
+                            },
+                            body: JSON.stringify({
+                                message: message
+                            })
+                        });
 
-                    if (!response.ok) {
-                        if (response.status === 401) {
-                            // Token expired, redirect to login
-                            window.location.reload();
-                            return;
+                        if (!response.ok) {
+                            if (response.status === 401) {
+                                // Token expired, redirect to login
+                                window.location.reload();
+                                return;
+                            }
+                            throw new Error(`HTTP error! status: ${response.status}`);
                         }
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
 
-                    const data = await response.json();
-                    this.addMessage(data.response, 'assistant');
+                        const data = await response.json();
+                        responseText = data.response;
+                    }
+                    
+                    this.addMessage(responseText, 'assistant');
                     
                 } catch (error) {
                     console.error('Error:', error);
@@ -1163,9 +1436,441 @@
             }
         }
 
+        // Enhanced Features JavaScript
+        window.currentImageFile = null;
+        window.auth = null;
+
+        // Enhanced features functionality
+        function setupEnhancedFeatures(authInstance) {
+            window.auth = authInstance;
+            
+            // Image upload button
+            document.getElementById('image-upload-button').addEventListener('click', () => {
+                document.getElementById('image-input').click();
+            });
+            
+            // Image input change
+            document.getElementById('image-input').addEventListener('change', handleImageUpload);
+            
+            // Insights button
+            document.getElementById('insights-button').addEventListener('click', () => {
+                openModal('insights-modal');
+            });
+            
+            // Memory button
+            document.getElementById('memory-button').addEventListener('click', () => {
+                openModal('memory-modal');
+            });
+        }
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (file.size > 10 * 1024 * 1024) { // 10MB limit
+                alert('Image is too large. Please choose an image under 10MB.');
+                return;
+            }
+
+            window.currentImageFile = file;
+            
+            // Show image preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                showImagePreview(e.target.result, file.name);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function showImagePreview(imageSrc, fileName) {
+            // Remove existing preview
+            const existingPreview = document.querySelector('.image-preview');
+            if (existingPreview) {
+                existingPreview.remove();
+            }
+
+            // Create preview
+            const preview = document.createElement('div');
+            preview.className = 'image-preview';
+            preview.innerHTML = `
+                <img src="${imageSrc}" alt="Preview">
+                <p><strong>${fileName}</strong></p>
+                <p>Type your question about this image and click send!</p>
+                <button class="remove-image" onclick="removeImagePreview()">Remove Image</button>
+            `;
+
+            // Insert before input container
+            const inputContainer = document.querySelector('.chat-input-container');
+            inputContainer.parentNode.insertBefore(preview, inputContainer);
+
+            // Update input placeholder
+            const messageInput = document.getElementById('message-input');
+            messageInput.placeholder = 'Ask me about this image...';
+        }
+
+        function removeImagePreview() {
+            const preview = document.querySelector('.image-preview');
+            if (preview) {
+                preview.remove();
+            }
+            window.currentImageFile = null;
+            document.getElementById('message-input').placeholder = 'Type your message to Jobo...';
+            document.getElementById('image-input').value = '';
+        }
+
+        window.sendImageAnalysis = async function(message) {
+            if (!window.currentImageFile || !window.auth.token) return false;
+
+            const formData = new FormData();
+            formData.append('file', window.currentImageFile);
+            formData.append('prompt', message);
+
+            try {
+                const response = await fetch('/api/v1/enhanced/vision/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${window.auth.token}`
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                // Remove image preview
+                removeImagePreview();
+                
+                // Add analysis to chat
+                const analysisMessage = `**Image Analysis Results:**
+
+${data.analysis.description}
+
+${data.analysis.insights ? '**Key Insights:**\n' + data.analysis.insights.map(insight => `• ${insight}`).join('\n') : ''}
+
+${data.analysis.suggestions ? '\n**Suggestions:**\n' + data.analysis.suggestions.map(suggestion => `• ${suggestion}`).join('\n') : ''}`;
+
+                return analysisMessage;
+                
+            } catch (error) {
+                console.error('Image analysis error:', error);
+                removeImagePreview();
+                return "I'm sorry, I couldn't analyze that image. Please try again.";
+            }
+        }
+
+        // Modal functions
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Enhanced features API calls
+        async function getDailyInsights() {
+            if (!window.auth.token) return;
+
+            try {
+                const response = await fetch('/api/v1/enhanced/insights/daily', {
+                    headers: { 'Authorization': `Bearer ${window.auth.token}` }
+                });
+
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                const data = await response.json();
+                displayInsights(data.insights);
+            } catch (error) {
+                console.error('Error getting daily insights:', error);
+                displayError('insights-display', 'Failed to load daily insights');
+            }
+        }
+
+        async function getPatternAnalysis() {
+            if (!window.auth.token) return;
+
+            try {
+                const response = await fetch('/api/v1/enhanced/insights/patterns', {
+                    headers: { 'Authorization': `Bearer ${window.auth.token}` }
+                });
+
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                const data = await response.json();
+                displayPatterns(data.patterns);
+            } catch (error) {
+                console.error('Error getting pattern analysis:', error);
+                displayError('insights-display', 'Failed to load pattern analysis');
+            }
+        }
+
+        async function getIntelligenceStatus() {
+            if (!window.auth.token) return;
+
+            try {
+                const response = await fetch('/api/v1/enhanced/intelligence/status', {
+                    headers: { 'Authorization': `Bearer ${window.auth.token}` }
+                });
+
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                const data = await response.json();
+                displayIntelligenceStatus(data.status);
+            } catch (error) {
+                console.error('Error getting intelligence status:', error);
+                displayError('insights-display', 'Failed to load intelligence status');
+            }
+        }
+
+        async function getMemoryStats() {
+            if (!window.auth.token) return;
+
+            try {
+                const response = await fetch('/api/v1/enhanced/memory/stats', {
+                    headers: { 'Authorization': `Bearer ${window.auth.token}` }
+                });
+
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                const data = await response.json();
+                displayMemoryStats(data.stats);
+            } catch (error) {
+                console.error('Error getting memory stats:', error);
+                displayError('memory-display', 'Failed to load memory statistics');
+            }
+        }
+
+        async function getMemoryClusters() {
+            if (!window.auth.token) return;
+
+            try {
+                const response = await fetch('/api/v1/enhanced/memory/clusters', {
+                    headers: { 'Authorization': `Bearer ${window.auth.token}` }
+                });
+
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                const data = await response.json();
+                displayMemoryClusters(data.clusters);
+            } catch (error) {
+                console.error('Error getting memory clusters:', error);
+                displayError('memory-display', 'Failed to load memory clusters');
+            }
+        }
+
+        async function optimizeMemory() {
+            if (!window.auth.token) return;
+
+            try {
+                const response = await fetch('/api/v1/enhanced/memory/consolidate', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${window.auth.token}` }
+                });
+
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                const data = await response.json();
+                displayMemoryOptimization(data);
+            } catch (error) {
+                console.error('Error optimizing memory:', error);
+                displayError('memory-display', 'Failed to start memory optimization');
+            }
+        }
+
+        // Display functions
+        function displayInsights(insights) {
+            const display = document.getElementById('insights-display');
+            display.style.display = 'block';
+            display.innerHTML = `
+                <h4><i class="fas fa-calendar-day"></i> Daily Insights for ${insights.date}</h4>
+                
+                <div class="insight-section">
+                    <h4>📊 Activity Summary</h4>
+                    <div class="insight-item">
+                        <strong>Total Interactions:</strong> ${insights.activity_summary?.total_interactions || 0}<br>
+                        <strong>Average Daily:</strong> ${insights.activity_summary?.avg_daily_interactions || 0}<br>
+                        <strong>Most Active Hour:</strong> ${insights.activity_summary?.most_active_hour || 'Not enough data'}
+                    </div>
+                </div>
+
+                <div class="insight-section">
+                    <h4>🎯 Topic Trends</h4>
+                    <div class="insight-item">
+                        <strong>Top Topics:</strong> ${insights.topic_trends?.top_topics?.join(', ') || 'Discovering your interests'}<br>
+                        <strong>Focus Areas:</strong> ${insights.topic_trends?.focus_areas?.join(', ') || 'General conversation'}
+                    </div>
+                </div>
+
+                <div class="engagement-score">
+                    Engagement Score: ${insights.engagement_score || '0.0'}
+                </div>
+
+                ${insights.suggestions?.length ? `
+                <div class="insight-section">
+                    <h4>💡 Personalized Suggestions</h4>
+                    ${insights.suggestions.map(suggestion => `
+                        <div class="suggestion-item">
+                            <strong>${suggestion.title}</strong><br>
+                            ${suggestion.description}
+                        </div>
+                    `).join('')}
+                </div>
+                ` : ''}
+            `;
+        }
+
+        function displayPatterns(patterns) {
+            const display = document.getElementById('insights-display');
+            display.style.display = 'block';
+            display.innerHTML = `
+                <h4><i class="fas fa-brain"></i> Pattern Analysis (${patterns.analysis_period})</h4>
+                
+                <div class="insight-section">
+                    <h4>🗣️ Communication Style</h4>
+                    <div class="insight-item">
+                        <strong>Verbosity:</strong> ${patterns.communication_insights?.verbosity || 'Unknown'}<br>
+                        <strong>Inquiry Style:</strong> ${patterns.communication_insights?.inquiry_style || 'Unknown'}<br>
+                        <strong>Average Message Length:</strong> ${patterns.communication_insights?.avg_message_length || 0} characters
+                    </div>
+                </div>
+
+                <div class="insight-section">
+                    <h4>⏰ Activity Patterns</h4>
+                    <div class="insight-item">
+                        <strong>Peak Hours:</strong> ${patterns.activity_patterns?.peak_hours?.join(', ') || 'Not enough data'}<br>
+                        <strong>Consistency Score:</strong> ${patterns.activity_patterns?.consistency_score?.toFixed(2) || '0.00'}
+                    </div>
+                </div>
+
+                <div class="engagement-score">
+                    Overall Engagement: ${patterns.engagement_score || '0.0'}
+                </div>
+            `;
+        }
+
+        function displayIntelligenceStatus(status) {
+            const display = document.getElementById('insights-display');
+            display.style.display = 'block';
+            
+            const capabilities = status.capabilities || {};
+            display.innerHTML = `
+                <h4><i class="fas fa-cogs"></i> AI Intelligence Status</h4>
+                
+                <div class="insight-section">
+                    <h4>🤖 Active Capabilities</h4>
+                    ${Object.entries(capabilities).map(([key, value]) => `
+                        <div class="insight-item">
+                            <strong>${key.replace(/_/g, ' ').toUpperCase()}:</strong> 
+                            <span style="color: ${value ? '#10b981' : '#ef4444'}">
+                                ${value ? '✅ Active' : '❌ Inactive'}
+                            </span>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div class="insight-section">
+                    <h4>📊 Memory Status</h4>
+                    <div class="insight-item">
+                        <strong>Semantic Memory:</strong> ${status.memory_status?.semantic_memory_count || 0} memories<br>
+                        <strong>Short-term Memory:</strong> ${status.memory_status?.short_term_memory_count || 0} messages<br>
+                        <strong>System Health:</strong> ${status.memory_status?.memory_system_health || 'Unknown'}
+                    </div>
+                </div>
+
+                <div class="engagement-score">
+                    Intelligence Level: ${status.intelligence_level || 'Unknown'}
+                </div>
+            `;
+        }
+
+        function displayMemoryStats(stats) {
+            const display = document.getElementById('memory-display');
+            display.style.display = 'block';
+            display.innerHTML = `
+                <h4><i class="fas fa-chart-bar"></i> Memory Statistics</h4>
+                
+                <div class="insight-section">
+                    <h4>💾 Storage Overview</h4>
+                    <div class="insight-item">
+                        <strong>Semantic Memories:</strong> ${stats.semantic_memory_count || 0}<br>
+                        <strong>Short-term Messages:</strong> ${stats.short_term_memory_count || 0}<br>
+                        <strong>System Health:</strong> ${stats.memory_system_health || 'Unknown'}
+                    </div>
+                </div>
+
+                ${stats.memory_organization ? `
+                <div class="insight-section">
+                    <h4>🧠 Memory Organization</h4>
+                    <div class="insight-item">
+                        <strong>Identified Clusters:</strong> ${stats.memory_organization.identified_clusters}<br>
+                        <strong>Organization Quality:</strong> ${stats.memory_organization.organization_quality}<br>
+                        <strong>Average Cluster Size:</strong> ${stats.memory_organization.average_cluster_size?.toFixed(1) || '0'}
+                    </div>
+                </div>
+                ` : ''}
+            `;
+        }
+
+        function displayMemoryClusters(clusters) {
+            const display = document.getElementById('memory-display');
+            display.style.display = 'block';
+            display.innerHTML = `
+                <h4><i class="fas fa-project-diagram"></i> Memory Clusters</h4>
+                
+                ${clusters.length ? clusters.map(cluster => `
+                    <div class="insight-section">
+                        <h4>🎯 ${cluster.theme}</h4>
+                        <div class="insight-item">
+                            <strong>Description:</strong> ${cluster.description}<br>
+                            <strong>Memory Count:</strong> ${cluster.memory_count}<br>
+                            <strong>Strength:</strong> ${cluster.strength}
+                        </div>
+                    </div>
+                `).join('') : '<div class="insight-item">No memory clusters found yet. Keep chatting to build organized memories!</div>'}
+            `;
+        }
+
+        function displayMemoryOptimization(result) {
+            const display = document.getElementById('memory-display');
+            display.style.display = 'block';
+            display.innerHTML = `
+                <h4><i class="fas fa-broom"></i> Memory Optimization</h4>
+                
+                <div class="insight-item">
+                    <strong>Status:</strong> ${result.message}<br>
+                    ${result.note ? `<em>${result.note}</em>` : ''}
+                </div>
+            `;
+        }
+
+        function displayError(displayId, message) {
+            const display = document.getElementById(displayId);
+            display.style.display = 'block';
+            display.innerHTML = `
+                <div class="insight-item" style="border-left-color: #dc2626; background: #fee2e2;">
+                    <strong>Error:</strong> ${message}
+                </div>
+            `;
+        }
+
+        // Close modals when clicking outside
+        window.addEventListener('click', (event) => {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        });
+
         // Initialize the application when the page loads
         document.addEventListener('DOMContentLoaded', () => {
-            new JoboAuth();
+            const authInstance = new JoboAuth();
+            
+            // Set up enhanced features after a short delay to ensure auth is ready
+            setTimeout(() => {
+                setupEnhancedFeatures(authInstance);
+            }, 500);
         });
     </script>
 </body>

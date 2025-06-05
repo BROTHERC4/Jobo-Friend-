@@ -23,4 +23,8 @@ scikit-learn>=1.3.0
 # Additional utilities for enhanced AI functionality
 tenacity>=8.0.0  # For robust API calls with retries
 nltk>=3.8.0      # For advanced text processing
-pandas>=2.0.0    # For data analysis in learning algorithms 
+pandas>=2.0.0    # For data analysis in learning algorithms
+
+# Enhanced capabilities
+pillow>=10.0.0   # For image processing
+python-magic>=0.4.27  # For file type detection 
