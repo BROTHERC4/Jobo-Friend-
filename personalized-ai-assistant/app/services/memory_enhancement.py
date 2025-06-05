@@ -35,7 +35,7 @@ class MemoryConsolidationService:
         except Exception as e:
             logger.error(f"❌ Failed to initialize memory consolidation: {e}")
     
-    async def consolidate_conversation(self, conversation_messages: List[Dict[str, Any]]) -> Optional[str]:
+    def consolidate_conversation(self, conversation_messages: List[Dict[str, Any]]) -> Optional[str]:
         """
         Consolidate a conversation into a meaningful summary for long-term storage.
         
@@ -53,11 +53,11 @@ class MemoryConsolidationService:
             conversation_text = self._format_conversation(conversation_messages)
             
             # Generate intelligent summary
-            summary = await self._generate_conversation_summary(conversation_text)
+            summary = self._generate_conversation_summary(conversation_text)
             
             if summary:
                 # Extract key insights and metadata
-                metadata = await self._extract_conversation_metadata(conversation_text, summary)
+                metadata = self._extract_conversation_metadata(conversation_text, summary)
                 
                 # Store consolidated memory
                 memory_id = self.memory_service.add_memory(
@@ -99,10 +99,10 @@ class MemoryConsolidationService:
         
         return "\n".join(formatted_lines)
     
-    async def _generate_conversation_summary(self, conversation_text: str) -> Optional[str]:
+    def _generate_conversation_summary(self, conversation_text: str) -> Optional[str]:
         """Generate an intelligent summary of the conversation"""
         try:
-            response = await self.client.messages.create(
+            response = self.client.messages.create(
                 model="claude-3-5-sonnet-20241022",
                 max_tokens=500,
                 messages=[{
@@ -128,10 +128,10 @@ Summary:"""
             logger.error(f"Failed to generate conversation summary: {e}")
             return None
     
-    async def _extract_conversation_metadata(self, conversation_text: str, summary: str) -> Dict[str, Any]:
+    def _extract_conversation_metadata(self, conversation_text: str, summary: str) -> Dict[str, Any]:
         """Extract structured metadata from conversation"""
         try:
-            response = await self.client.messages.create(
+            response = self.client.messages.create(
                 model="claude-3-5-sonnet-20241022",
                 max_tokens=300,
                 messages=[{
@@ -169,7 +169,7 @@ JSON:"""
             logger.error(f"Failed to extract conversation metadata: {e}")
             return {"topics": ["general_conversation"]}
     
-    async def identify_memory_clusters(self, max_clusters: int = 10) -> List[Dict[str, Any]]:
+    def identify_memory_clusters(self, max_clusters: int = 10) -> List[Dict[str, Any]]:
         """
         Identify clusters of related memories for better organization.
         
@@ -187,7 +187,7 @@ JSON:"""
                 return []  # Need at least 3 memories to cluster
             
             # Use Claude to identify thematic clusters
-            clusters = await self._generate_memory_clusters(all_memories, max_clusters)
+            clusters = self._generate_memory_clusters(all_memories, max_clusters)
             
             logger.info(f"🧠 Identified {len(clusters)} memory clusters")
             return clusters
@@ -224,7 +224,7 @@ JSON:"""
             logger.error(f"Failed to get all memories: {e}")
             return []
     
-    async def _generate_memory_clusters(self, memories: List[Dict[str, Any]], max_clusters: int) -> List[Dict[str, Any]]:
+    def _generate_memory_clusters(self, memories: List[Dict[str, Any]], max_clusters: int) -> List[Dict[str, Any]]:
         """Use Claude to identify thematic clusters in memories"""
         try:
             # Prepare memory summaries for clustering
@@ -233,7 +233,7 @@ JSON:"""
                 text = memory['text'][:200]  # Truncate for API limits
                 memory_summaries.append(f"Memory {i+1}: {text}")
             
-            response = await self.client.messages.create(
+            response = self.client.messages.create(
                 model="claude-3-5-sonnet-20241022",
                 max_tokens=800,
                 messages=[{
@@ -293,7 +293,7 @@ JSON:"""
             logger.error(f"Failed to generate memory clusters: {e}")
             return []
     
-    async def optimize_memory_storage(self) -> Dict[str, Any]:
+    def optimize_memory_storage(self) -> Dict[str, Any]:
         """
         Optimize memory storage by consolidating similar memories
         and removing redundant information.
@@ -306,7 +306,7 @@ JSON:"""
             initial_stats = self.memory_service.get_memory_statistics()
             
             # Identify clusters for optimization
-            clusters = await self.identify_memory_clusters()
+            clusters = self.identify_memory_clusters()
             
             optimized_clusters = 0
             memories_consolidated = 0
@@ -314,7 +314,7 @@ JSON:"""
             for cluster in clusters:
                 if cluster['memory_count'] >= 3 and cluster['strength'] == 'high':
                     # Consolidate highly related memories
-                    consolidated = await self._consolidate_memory_cluster(cluster)
+                    consolidated = self._consolidate_memory_cluster(cluster)
                     if consolidated:
                         optimized_clusters += 1
                         memories_consolidated += cluster['memory_count']
@@ -335,7 +335,7 @@ JSON:"""
             logger.error(f"Memory optimization failed: {e}")
             return {"optimization_completed": False, "error": str(e)}
     
-    async def _consolidate_memory_cluster(self, cluster: Dict[str, Any]) -> bool:
+    def _consolidate_memory_cluster(self, cluster: Dict[str, Any]) -> bool:
         """Consolidate a cluster of related memories into a single comprehensive memory"""
         try:
             # Extract texts from cluster memories
@@ -343,7 +343,7 @@ JSON:"""
             combined_text = "\n\n".join(memory_texts)
             
             # Generate consolidated summary
-            response = await self.client.messages.create(
+            response = self.client.messages.create(
                 model="claude-3-5-sonnet-20241022",
                 max_tokens=600,
                 messages=[{

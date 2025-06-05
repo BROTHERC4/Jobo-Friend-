@@ -22,7 +22,7 @@ class ProactiveIntelligenceService:
         self.db = db
         self.memory_service = IntelligentMemoryService(user_id)
     
-    async def generate_daily_insights(self) -> Dict[str, Any]:
+    def generate_daily_insights(self) -> Dict[str, Any]:
         """Generate daily insights based on user activity and patterns"""
         try:
             # Get recent interactions

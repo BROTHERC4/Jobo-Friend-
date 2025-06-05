@@ -15,6 +15,24 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 security = HTTPBearer()
 
+@router.get("/test")
+async def test_enhanced_routes():
+    """Simple test endpoint to verify enhanced routes are loading"""
+    return {
+        "success": True,
+        "message": "Enhanced routes are working!",
+        "routes": [
+            "/vision/analyze",
+            "/insights/daily", 
+            "/insights/patterns",
+            "/memory/consolidate",
+            "/memory/clusters",
+            "/memory/stats",
+            "/conversation/summarize",
+            "/intelligence/status"
+        ]
+    }
+
 @router.post("/vision/analyze")
 async def analyze_image(
     file: UploadFile = File(...),
@@ -41,7 +59,7 @@ async def analyze_image(
         
         # Analyze image
         vision_service = get_vision_service()
-        analysis = await vision_service.analyze_image(image_data, prompt)
+        analysis = vision_service.analyze_image(image_data, prompt)
         
         if "error" in analysis:
             raise HTTPException(status_code=500, detail=analysis["error"])
@@ -86,7 +104,7 @@ async def get_daily_insights(
     """
     try:
         proactive_service = get_proactive_service(user_id, db)
-        insights = await proactive_service.generate_daily_insights()
+        insights = proactive_service.generate_daily_insights()
         
         return {
             "success": True,
@@ -177,7 +195,7 @@ async def get_memory_clusters(
     """
     try:
         consolidation_service = get_memory_consolidation_service(user_id)
-        clusters = await consolidation_service.identify_memory_clusters(max_clusters)
+        clusters = consolidation_service.identify_memory_clusters(max_clusters)
         
         return {
             "success": True,

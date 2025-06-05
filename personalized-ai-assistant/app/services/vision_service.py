@@ -33,7 +33,7 @@ class VisionService:
         except Exception as e:
             logger.error(f"❌ Failed to initialize vision service: {e}")
     
-    async def analyze_image(self, image_data: bytes, prompt: str = "Analyze this image") -> Dict[str, Any]:
+    def analyze_image(self, image_data: bytes, prompt: str = "Analyze this image") -> Dict[str, Any]:
         """
         Analyze an image using Claude's vision capabilities.
         
