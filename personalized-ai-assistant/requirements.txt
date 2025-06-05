@@ -27,4 +27,4 @@ pandas>=2.0.0    # For data analysis in learning algorithms
 
 # Enhanced capabilities
 pillow>=10.0.0   # For image processing
-python-magic>=0.4.27  # For file type detection 
+# python-magic>=0.4.27  # For file type detection - not currently used 

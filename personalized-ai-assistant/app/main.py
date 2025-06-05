@@ -65,12 +65,22 @@ app.include_router(router, prefix="/api/v1", tags=["AI Assistant"])
 
 # Include enhanced capabilities routes
 try:
+    logger.info("🔄 Attempting to load enhanced AI capabilities...")
     from app.api.enhanced_routes import get_enhanced_router
+    logger.info("✅ Enhanced routes module imported successfully")
     enhanced_router = get_enhanced_router()
+    logger.info("✅ Enhanced router created successfully")
     app.include_router(enhanced_router, prefix="/api/v1/enhanced", tags=["Enhanced AI"])
-    logger.info("Enhanced AI capabilities loaded successfully")
+    logger.info("✅ Enhanced AI capabilities loaded successfully")
+except ImportError as e:
+    logger.error(f"❌ Import error loading enhanced AI capabilities: {e}")
+    import traceback
+    logger.error(f"❌ Full traceback: {traceback.format_exc()}")
+    logger.info("Running with basic AI features only")
 except Exception as e:
-    logger.warning(f"Enhanced AI capabilities not loaded: {e}")
+    logger.error(f"❌ Error loading enhanced AI capabilities: {e}")
+    import traceback
+    logger.error(f"❌ Full traceback: {traceback.format_exc()}")
     logger.info("Running with basic AI features only")
 
 @app.get("/ping")
