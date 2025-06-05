@@ -54,11 +54,11 @@ class VisionService:
             # Convert image to base64
             image_base64 = base64.b64encode(image_data).decode('utf-8')
             
-            # Determine image type (simplified)
-            image_type = "image/jpeg"  # Default, could be enhanced
+            # Determine image type from file signature
+            image_type = self._detect_image_type(image_data)
             
             # Analyze image with Claude
-            response = await self.client.messages.create(
+            response = self.client.messages.create(
                 model="claude-3-5-sonnet-20241022",
                 max_tokens=1000,
                 messages=[{
@@ -123,6 +123,19 @@ class VisionService:
                 suggestions.append(line.strip())
         
         return suggestions[:3]  # Limit to top 3
+    
+    def _detect_image_type(self, image_data: bytes) -> str:
+        """Detect image MIME type from file signature"""
+        if image_data.startswith(b'\xff\xd8\xff'):
+            return "image/jpeg"
+        elif image_data.startswith(b'\x89PNG\r\n\x1a\n'):
+            return "image/png"
+        elif image_data.startswith(b'GIF87a') or image_data.startswith(b'GIF89a'):
+            return "image/gif"
+        elif image_data.startswith(b'RIFF') and b'WEBP' in image_data[:12]:
+            return "image/webp"
+        else:
+            return "image/jpeg"  # Default fallback
 
 # Global instance
 _vision_service = None
